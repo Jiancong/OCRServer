@@ -28,7 +28,7 @@ api.add_resource(CompressImage.CompressImageApi, '/api/compress_image')
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--dir", required=True,
-        help="path to the directory contains images")
+        help="path to the directory contains source images")
 args = vars(ap.parse_args())
 
 recognize.loadConfig()
@@ -45,7 +45,7 @@ def getValidImgFileList():
                 imgFile = os.path.join(parent,filename)
                 lstValidImgFile.append(imgFile)
         if bExitLoop:
-            break;
+            break
 
     return lstValidImgFile;
     
@@ -64,26 +64,27 @@ def main():
     for imgFile in lstVaildImgFiles:
         print(imgFile)
 
-        nIndex = nIndex + 1
 	# process images count not bigger than specific value
         if nIndex == DEBUG_FILE_NUM:
-            break;
+            break
 
-        strJobID = get_filePath_fileName(imgFile)
+        strJobID = str(nIndex) + "_" + get_filePath_fileName(imgFile)
+	
         print("strJobID =>", strJobID)
         strFilePath = imgFile
         obj.post2(strJobID, strFilePath)
-    pass
+        nIndex = nIndex + 1
 
 def test():
     obj = DetectType3.DetectType3Api()
-    strJobID = "f4f87396eece404131ff119bd181ee3a"
+    strJobID="04d6ebe32c3cd82303594fb686fceac5"
+    #strJobID = "125cf02f30721a3563c733975314b234"
     print(strJobID)
-    strFilePath = args['dir'] + "/f4f87396eece404131ff119bd181ee3a.jpg"
+    strFilePath = args['dir'] + "/" + strJobID +".jpg"
     obj.post2(strJobID, strFilePath)
     pass
 
 
 if __name__ == '__main__':
-    main();
-    #test();
+    main()
+    #test()

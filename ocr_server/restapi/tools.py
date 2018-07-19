@@ -27,7 +27,6 @@ OCRUrl = 'http://netocr.com/api/recog.do'
 
 # code > 0, using netocr.com
 # code = -1, using tesseract as number
-
 OCR_TYPE_MAPPING = {
     'text': {
         'code': 1992,
@@ -255,9 +254,7 @@ def createRoi(img, location, job_id, roi_name):
     path = writeImageJob(roi, job_id, roi_name)
     return roi, path
 
-
 original_open = open
-
 
 def bin_open(filename, mode='rb'):  # note, the default mode now opens in binary
     return original_open(filename, mode)
@@ -267,7 +264,6 @@ def callOcr(roi, job_id, roi_config):
     type_config = OCR_TYPE_MAPPING.get(roi_type)
 
     line_count = roi_config.get('line', 1)
-
     line_count = line_count * roi.shape[0] / float(roi_config['h'])
 
     ocr_img = wrapTextImageWithPrefix(roi, line_count, type_config)
@@ -280,27 +276,27 @@ def callOcr(roi, job_id, roi_config):
             ipl_img = PIL.Image.fromarray(cv2.cvtColor(ocr_img, cv2.COLOR_BGR2RGB))
             t_bts = pytesseract.image_to_string(ipl_img, lang='eng')
 
-            t_str = str(t_bts).encode('cp1252', errors="replace")
-            #encode(sys.stdout.encoding, errors='replace')
+            t_str = str(t_bts).encode('cp1252', "ignore")
 
             logging.info('OCR Tesseract: %s' % str(t_str))
 
             text_lines = []
-            #print("=============>", type(t_str))
-            #t_str = t_str.decode()
-            #for line in t_str.split("\n"):
-            #    trim_line = line.strip()
-            #    if trim_line != '':
-            #        # remove prefix and surfix
-            #        if trim_line.find(u"中中") < 0 and trim_line.find(u"dddd") < 0:
-            #            text_lines.append(trim_line)
+            print("=============>", type(t_str))
+            t_str = t_str.decode()
+            for line in t_str.split("\n"):
+                trim_line = line.strip()
+                if trim_line != '':
+                    # remove prefix and surfix
+                    if trim_line.find(u"中中") < 0 and trim_line.find(u"dddd") < 0:
+                        text_lines.append(trim_line)
 
             return text_lines
         finally:
             builtins.open = original_open
 
     elif type_config['code'] > 0:
-        return ocrTextImage(ocr_img, job_id, type_config['code'])
+        #return ocrTextImage(ocr_img, job_id, type_config['code'])
+        return None
     else:
         logging.error('Unknown roi type code %s' % type_config['code'])
 
@@ -449,22 +445,33 @@ def extractText2BlackImage(img, roi_style=DEFAULT_ROI_STYLE, job_id=None, roi_na
     # return image
 
 
-# because ORC can't recognize small text, so we will add pre-defined text before & after the origin text-image.
+# because OCR can't recognize small text, so we will add pre-defined text before & after the origin text-image.
 def wrapTextImageWithPrefix(image, line_count, type_config):
+    print("prefix_img =>", type_config['prefix'])
     prefix_img = cv2.imread(type_config['prefix'], cv2.IMREAD_COLOR)
+    print("prefix_img shape =>", prefix_img.shape)
+    print("image shape =>", image.shape)
+    print("line count =>", line_count)
 
     # TODO: currently, we assume image is one line text, so we will scale based on height of image. Next step is support multi-line image
     # resize the prefix image
+    # shape[0]: height
+    # shape[1]: width
+    image_height = image.shape[0]
+    image_width = image.shape[1]
+    pre_height = prefix_img.shape[0]
+    pre_width = prefix_img.shape[1]
     prefix_img = cv2.resize(prefix_img, (
-        int(prefix_img.shape[1] * image.shape[0] / (prefix_img.shape[0] * line_count)),
-        int(image.shape[0] / line_count)
+	int ((pre_width/pre_height) * (image_height/line_count)),  #resized width
+        int(image_height / line_count) #resized height
     ))
 
     prefix_height = prefix_img.shape[0]
     prefix_width = prefix_img.shape[1]
 
-    maxWidth = max(prefix_width, image.shape[1])
-    text_image = np.zeros((image.shape[0] + prefix_height * 2, maxWidth, 3), np.uint8)
+    maxWidth = max(prefix_width, image_width)
+    text_image = np.zeros((image_height + prefix_height * 2, maxWidth, 3), np.uint8)  # add 3 channel
+    # 
     text_image[:] = (255, 255, 255)
 
     text_image[0:prefix_height, 0: prefix_width] = prefix_img

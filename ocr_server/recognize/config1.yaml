@@ -16,7 +16,7 @@ cn_vat_sh:
 #      minMatchCount: 20
 #      matchDistance: 0.7
 
-#   setting of feature3.png
+#   setting of feature13.png
     x: 20
     y: 21
     w: 1105
@@ -25,7 +25,7 @@ cn_vat_sh:
     #y: 11
     #w: 1148
     #h: 724
-    file: ./recognize/cn_vat_sh/feature9.png
+    file: ./recognize/cn_vat_sh/feature13.png
     option:       # 针对特征匹配的选项, 可选
       minMatchCount: 30
       matchDistance: 0.7
@@ -36,11 +36,12 @@ cn_vat_sh:
       DocType:  # 相对应的roi的名字，在roi块中定义的
       DocCode:
       Buyer:
+      Seller:
       DocNumber:
       Total:      
   roi: #roi是感兴趣的区域，需要系统提取的
     Buyer:
-      type: text    # text/number/date/currency 这里主要的内容类型。准确的设置值可以提高识别率，如ORC效果。默认text(简体中文)
+      type: text    # text/number/date/currency 这里主要的内容类型。准确的设置值可以提高识别率，如OCR效果。默认text(简体中文)
       x: 216
       y: 163
       w: 432
@@ -49,33 +50,56 @@ cn_vat_sh:
       hide: false       # 是否把这个roi，作为结果返回给接口。例如作为类型检查使用的roi，并不需要返回数据。
       style: blue-font-enhance  # 此ROI的样式，可以增加识别效果。 目前可选值为 'blue-font'（蓝色复印字体），'black-font'（黑色字体）
       line: 4           # 此ROI中，包含的文本行数。默认1。此参数会控制字体大小。
+    Seller:
+      type: text
+      x: 216
+      y: 550
+      w: 432
+      h: 120
+      ocr: true
+      hide: false
+      style: blue-font-enhance
+      line: 4
     DocCode:   # fapiao code
       type: number
       x: 160
       y: 60
       w: 205
       h: 40
+      ocr: true
+      hide: false
+      style: black-font
+      line: 1
     DocNumber:  # fapiao number
       type: number
       x: 826
       y: 42
       w: 180
       h: 50
+      ocr: true
+      hide: false
       style: black-font
+      line: 1
     DocDate:
       type: date
       x: 912
       y: 110
       w: 185
       h: 37
+      ocr: true
+      hide: false
       style: blue-font-enhance
+      line: 1
     Total:
       type: currency
       x: 873
       y: 508
       w: 219
       h: 38
+      ocr: true
+      hide: false
       style: blue-font-enhance
+      line: 1
     Items:
       type: text
       x: 50

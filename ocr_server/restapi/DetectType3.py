@@ -193,12 +193,11 @@ class DetectType3Api(Resource):
 
             validate_roi, validate_roi_path = tools.createRoi2(perspective_img, validate_roi_name, validate_roi_config,
                                                            str(job_id) + '/step1')
-            orc_result = tools.callOcr(validate_roi, job_id + '/step1', validate_roi_config)
+            #ocr_result = tools.callOcr(validate_roi, job_id + '/step1', validate_roi_config)
 
-            logging.info('Validate ROI OCR result = %s' % orc_result)
+            #logging.info('Validate ROI OCR result = %s' % ocr_result)
 
-        return 
-
+        return
         ############################################
         # 4. create compress jpg image
         ############################################
