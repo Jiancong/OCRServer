@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import Flask
+import os
+from flask import Flask, render_template, request, send_from_directory, Response
+from werkzeug import secure_filename
+import hashlib
+
 from flask_restful import Api
 from restapi import ExtractImage2, Ocr2, CompressImage, DetectType2, DetectType3, recognize
 import logging
-import os
 import argparse
+from datetime import datetime
+from shutil import copyfile
 
 logging.basicConfig(level=logging.DEBUG, format="[%(asctime)s] %(levelname)-5s %(name)-8s - %(message)s")
 
@@ -22,8 +27,10 @@ api = Api(app)
 
 api.add_resource(DetectType2.DetectType2Api, '/api/detect_invoice')
 api.add_resource(ExtractImage2.ExtractImage2Api, '/api/extract_image')
+api.add_resource(Uploader, '/api/upload')
 api.add_resource(Ocr2.OCR2Api, '/api/ocr')
 api.add_resource(CompressImage.CompressImageApi, '/api/compress_image')
+api.add_resources()
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -86,5 +93,6 @@ def test():
 
 
 if __name__ == '__main__':
-    main()
+    app.run(debug=True)
+    #main()
     #test()
