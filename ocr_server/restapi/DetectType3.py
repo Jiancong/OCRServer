@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import request
-from flask_restful import Resource
+from flask_restful import Resource, reqparse, Api
 import cv2
 import numpy as np
 from restapi import tools
@@ -39,6 +39,16 @@ class DetectType3Api(Resource):
     }
 
     '''
+    def get(self):
+        parse = reqparse.RequestParser()
+        parse.add_argument('task_id', type=int, location='form')
+        parse.add_argument('user_id', type=int, location='form')
+        args = parse.parse_args()
+
+        file = args['user_file']
+
+
+
     def post2(self, strJobId, strFilePath):
         self.mStrJobID = strJobId
         self.mFilePath = strFilePath

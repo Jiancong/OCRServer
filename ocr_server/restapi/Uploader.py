@@ -57,8 +57,8 @@ class Uploader(Resource):
         if file:
             if file.filename == '':
                 response_data = {
-                    "status": 'Upload filename is null.',
-                    "status_code": HTTP_400_BAD_REQUEST 
+                    "msg": 'Upload filename is null.',
+                    "ret": HTTP_400_BAD_REQUEST 
                 }
                 return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
 
@@ -83,8 +83,8 @@ class Uploader(Resource):
 
                 if os.path.exists(newfilename):
                     response_data = {
-                        "status": 'Please do not upload the file repeatedly.',
-                        "status_code": HTTP_400_BAD_REQUEST
+                        "msg": 'Please do not upload the file repeatedly.',
+                        "ret": HTTP_400_BAD_REQUEST
                     }
                     return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
 
@@ -100,16 +100,19 @@ class Uploader(Resource):
                 #self.preprocess_images(newfilename, preproc_filepath)
 
                 response_data = {
-                    "user_file": filename,
-                    "user_id": args['user_id'],
-                    "status": 'Upload file successfully',
-                    "status_code": HTTP_201_CREATED
+                        "data":{
+                            "user_file": filename,
+                            "user_id": args['user_id'],
+                            "task_id": md5filename,
+                            },
+                    "msg": 'Upload file successfully',
+                    "ret": HTTP_201_CREATED
                 }
                 return make_response(jsonify(response_data), HTTP_201_CREATED)
             else:
                 response_data = { 
-                    "status": 'Upload is not allowed filetype.',
-                    "status_code": HTTP_400_BAD_REQUEST
+                    "msg": 'Upload is not allowed filetype.',
+                    "ret": HTTP_400_BAD_REQUEST
                 }
                 return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
 

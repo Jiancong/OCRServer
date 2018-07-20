@@ -27,11 +27,12 @@ def heath_check():
 
 api = Api(app)
 
-api.add_resource(DetectType2.DetectType2Api, '/api/detect_invoice')
-api.add_resource(ExtractImage2.ExtractImage2Api, '/api/extract_image')
+#api.add_resource(DetectType2.DetectType2Api, '/api/detect_invoice')
+#api.add_resource(ExtractImage2.ExtractImage2Api, '/api/extract_image')
 api.add_resource(Uploader, '/api/upload')
-api.add_resource(Ocr2.OCR2Api, '/api/ocr')
-api.add_resource(CompressImage.CompressImageApi, '/api/compress_image')
+api.add_resource(DetectType3.DetectType3Api, '/api/detect_in')
+#api.add_resource(Ocr2.OCR2Api, '/api/ocr')
+#api.add_resource(CompressImage.CompressImageApi, '/api/compress_image')
 #api.add_resources()
 
 # construct the argument parse and parse the arguments
