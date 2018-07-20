@@ -4,10 +4,12 @@
 import os
 from flask import Flask, render_template, request, send_from_directory, Response
 from werkzeug import secure_filename
+from werkzeug.datastructures import FileStorage
 import hashlib
 
 from flask_restful import Api
 from restapi import ExtractImage2, Ocr2, CompressImage, DetectType2, DetectType3, recognize
+from restapi.Uploader import Uploader
 import logging
 import argparse
 from datetime import datetime
@@ -30,7 +32,7 @@ api.add_resource(ExtractImage2.ExtractImage2Api, '/api/extract_image')
 api.add_resource(Uploader, '/api/upload')
 api.add_resource(Ocr2.OCR2Api, '/api/ocr')
 api.add_resource(CompressImage.CompressImageApi, '/api/compress_image')
-api.add_resources()
+#api.add_resources()
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
