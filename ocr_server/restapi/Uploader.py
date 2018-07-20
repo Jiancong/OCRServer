@@ -76,17 +76,12 @@ class Uploader(Resource):
                 preproc_filepath = os.path.join(PREPROC_FOLDER, preproc_filepath)
 
                 os.rename(os.path.join(UPLOAD_FOLDER, filename), os.path.join(UPLOAD_FOLDER, tmppath))
+
                 newfilename = os.path.join(UPLOAD_FOLDER, tmppath)
 
                 print("tmppath=>", tmppath)
                 print("newfilename=>", newfilename)
                 print("preproc_filepath=>", preproc_filepath)
-
-                if not os.path.exists(PREPROC_FOLDER):
-                    os.makedirs(PREPROC_FOLDER)
-                    
-                if not os.path.exists(preproc_filepath):
-                    os.makedirs(preproc_filepath)
 
                 if os.path.exists(newfilename):
                     response_data = {
@@ -94,8 +89,13 @@ class Uploader(Resource):
                         "status_code": HTTP_400_BAD_REQUEST
                     }
                     return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
+
+                if not os.path.exists(PREPROC_FOLDER):
+                    os.makedirs(PREPROC_FOLDER)
                     
-                self.preprocess_images(newfilename, preproc_filepath)
+                copyfile(newfilename, PREPROC_FOLDER)
+                    
+                #self.preprocess_images(newfilename, preproc_filepath)
 
                 response_data = {
                     "status": 'Upload file successfully',
