@@ -49,7 +49,7 @@ class Uploader(Resource):
     def post(self):
         parse = reqparse.RequestParser()
         parse.add_argument('user_file', type=FileStorage, location='files')
-        parse.add_argument('user_id', type=int, location='args')
+        parse.add_argument('user_id', type=int, location='form')
         args = parse.parse_args()
 
         file = args['user_file']
@@ -66,22 +66,20 @@ class Uploader(Resource):
             
             fext, s = self.allowed_file(file.filename)
             if s:
+                if not os.path.exists(UPLOAD_FOLDER):
+                    os.makedirs(UPLOAD_FOLDER)
+
                 filename = secure_filename(file.filename)
+                #print("filename=>", filename)
                 file.save(os.path.join(UPLOAD_FOLDER, filename))
 
-                tmppath =self.md5(os.path.join(UPLOAD_FOLDER, filename)) + "." + fext
+                filename_with_path = os.path.join(UPLOAD_FOLDER, filename)
+                #print("filename_with_path=>", filename_with_path)
 
-                # preproces image file directory
-                preproc_filepath = self.md5(os.path.join(UPLOAD_FOLDER, filename))
-                preproc_filepath = os.path.join(PREPROC_FOLDER, preproc_filepath)
+                md5filename = self.md5(filename_with_path)
+                md5filename_with_ext = md5filename + "." + fext
 
-                os.rename(os.path.join(UPLOAD_FOLDER, filename), os.path.join(UPLOAD_FOLDER, tmppath))
-
-                newfilename = os.path.join(UPLOAD_FOLDER, tmppath)
-
-                print("tmppath=>", tmppath)
-                print("newfilename=>", newfilename)
-                print("preproc_filepath=>", preproc_filepath)
+                newfilename = os.path.join(UPLOAD_FOLDER, md5filename_with_ext)
 
                 if os.path.exists(newfilename):
                     response_data = {
@@ -90,14 +88,20 @@ class Uploader(Resource):
                     }
                     return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
 
+                os.rename(filename_with_path, newfilename)
+
                 if not os.path.exists(PREPROC_FOLDER):
                     os.makedirs(PREPROC_FOLDER)
+
+                destfile = os.path.join(PREPROC_FOLDER, md5filename_with_ext)
                     
-                copyfile(newfilename, PREPROC_FOLDER)
+                copyfile(newfilename, destfile)
                     
                 #self.preprocess_images(newfilename, preproc_filepath)
 
                 response_data = {
+                    "user_file": filename,
+                    "user_id": args['user_id'],
                     "status": 'Upload file successfully',
                     "status_code": HTTP_201_CREATED
                 }
