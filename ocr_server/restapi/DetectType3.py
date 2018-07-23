@@ -9,10 +9,14 @@ from restapi import tools
 import logging
 from restapi import recognize
 import datetime
+import os
 
 HTTP_400_BAD_REQUEST = 400
 HTTP_201_CREATED = 201
 HTTP_200_SUCCESS = 200
+
+TESS_CMD='tesseract'
+RESULT_FOLDER = "./tmp"
  
 UPLOAD_FOLDER = './images'
 
@@ -59,20 +63,45 @@ class DetectType3Api(Resource):
 
         if task_id and user_id and file_type:
 
-            self.post2(task_id, UPLOAD_FOLDER)
+            res = self.post2(task_id, UPLOAD_FOLDER)
 
-            response_data = {
-                        "msg": 'Access webpage success.',
-                        "ret": HTTP_200_SUCCESS,
-                        "data" : {
-                            "task_id": task_id,
-                            "user_id": user_id,
-                            "file_type": file_type
-                            "DocNumber": 1234
-                            "DocType": 5678
+            if res['code'] == HTTP_400_BAD_REQUEST:
+                response_data = {
+                        "msg": 'Bad request.',
+                        "ret": HTTP_400_BAD_REQUEST,
+                        "data":{
                             }
                         }
-            return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
+                return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
+            else:
+
+                # do tesseract to recognize the docnumber and doctype
+                print("CMD=>", TESS_CMD + " " + RESULT_FOLDER +"/" + task_id + "/step1/roi-DocNumber.jpg" + " docnumres -l lancejie_fapiao3")
+                os.system(TESS_CMD + " " + RESULT_FOLDER + \
+                        "/" + task_id + "/step1/roi-DocNumber.jpg" + " docnumres -l lancejie_fapiao3")
+                doctyperes = os.system(TESS_CMD + " " + RESULT_FOLDER + \
+                        "/" + task_id + "/step1/roi-DocType.jpg" + " doctyperes -l lancejie_shuipiao2")
+
+                with open("docnumres.txt") as file:  
+                    docnumres = file.read().rstrip()
+                    print("docnumres=>", docnumres)
+
+                with open("doctyperes.txt") as file:
+                    doctyperes = file.read().rstrip()
+                    print("docttyperes=>", doctyperes)
+                    
+                response_data = {
+                    "msg": 'Access webpage success.',
+                    "ret": HTTP_200_SUCCESS,
+                    "data" : {
+                        "task_id": task_id,
+                        "user_id": user_id,
+                        "file_type": file_type,
+                        "DocNumber": docnumres,
+                        "DocType": doctyperes,
+                        }
+                    }
+                return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
         else:
             response_data = {
                     "msg": 'request error.',
@@ -85,8 +114,8 @@ class DetectType3Api(Resource):
     def post2(self, strJobId, strFilePath):
         self.mStrJobID = strJobId
         self.mFilePath = strFilePath
-        self.post()
-        pass
+        res = self.post()
+        return res
 
     def post(self):
         #json_data = request.get_json(force=True)
@@ -103,9 +132,13 @@ class DetectType3Api(Resource):
         openfilename = self.mFilePath + '/' + self.mStrJobID + '.' + self.mFileType
         print("openfilename=>", openfilename)
 
-        #img = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
-        #img = cv2.imread("/home/john/sources/opencv/tests/shapedection/fapiao1.png", cv2.IMREAD_UNCHANGED)
-        #img = cv2.imread("/home/hello/work/OCRServer/inv_img/1001_IMG_1840.JPG", cv2.IMREAD_UNCHANGED)
+        if not os.path.isfile(openfilename):
+            logging.error("The specified file is not found!")
+            res = {
+                    'code': HTTP_400_BAD_REQUEST,
+                    'message': 'the file is not found!'
+                }
+            return res
 
         img = cv2.imread(openfilename, cv2.IMREAD_UNCHANGED)
 
