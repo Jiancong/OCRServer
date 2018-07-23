@@ -51,9 +51,13 @@ def getValidImgFileList():
     bExitLoop = False
     for parent, dirnames, filenames in os.walk(rootDir):
         for filename in filenames:
-            if filename.endswith(".jpg"):
+            if filename.endswith(".jpg") or filename.endswith(".jpeg"):
                 imgFile = os.path.join(parent,filename)
                 lstValidImgFile.append(imgFile)
+            else:
+                if filename.endswith(".png") or filename.endswith(".bmp"):
+                    imgFile = os.path.join(parent,filename)
+                    lstValidImgFile.append(imgFile)
         if bExitLoop:
             break
 
@@ -61,8 +65,8 @@ def getValidImgFileList():
     
 def get_filePath_fileName(filename):  
     (filepath,tempfilename) = os.path.split(filename);  
-    (shotname,extension) = os.path.splitext(tempfilename);  
-    return shotname
+    (shortname,extension) = os.path.splitext(tempfilename);  
+    return shortname, extension
 
 def main():
     lstVaildImgFiles = getValidImgFileList()
@@ -78,17 +82,19 @@ def main():
         if nIndex == DEBUG_FILE_NUM:
             break
 
-        strJobID = str(nIndex) + "_" + get_filePath_fileName(imgFile)
+        (strJobID, fext) = get_filePath_fileName(imgFile)
+
+        strJobID_with_index = str(nIndex) + "_" + strJobID 
 	
         print("strJobID =>", strJobID)
         strFilePath = imgFile
-        obj.post2(strJobID, strFilePath)
+        obj.post2(strJobID_with_index, strFilePath)
         nIndex = nIndex + 1
 
 def test():
     obj = DetectType3.DetectType3Api()
-    strJobID="04d6ebe32c3cd82303594fb686fceac5"
-    #strJobID = "125cf02f30721a3563c733975314b234"
+    strJobID="7251cc1147be4726f175a09612b05b90"
+
     print(strJobID)
     strFilePath = args['dir'] + "/" + strJobID +".jpg"
     obj.post2(strJobID, strFilePath)

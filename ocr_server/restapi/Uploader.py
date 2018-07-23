@@ -18,7 +18,7 @@ import os
 UPLOAD_FOLDER = './images'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg',  'bmp' ])
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024
-PREPROC_FOLDER = './preproc'
+#PREPROC_FOLDER = './preproc'
 HTTP_400_BAD_REQUEST = 400
 HTTP_201_CREATED = 201
 
@@ -90,20 +90,19 @@ class Uploader(Resource):
 
                 os.rename(filename_with_path, newfilename)
 
-                if not os.path.exists(PREPROC_FOLDER):
-                    os.makedirs(PREPROC_FOLDER)
+                #if not os.path.exists(PREPROC_FOLDER):
+                #    os.makedirs(PREPROC_FOLDER)
 
-                destfile = os.path.join(PREPROC_FOLDER, md5filename_with_ext)
-                    
-                copyfile(newfilename, destfile)
+                #destfile = os.path.join(PREPROC_FOLDER, md5filename_with_ext)
+                #copyfile(newfilename, destfile)
                     
                 #self.preprocess_images(newfilename, preproc_filepath)
 
                 response_data = {
                         "data":{
-                            "user_file": filename,
                             "user_id": args['user_id'],
                             "task_id": md5filename,
+                            "file_type": fext,
                             },
                     "msg": 'Upload file successfully',
                     "ret": HTTP_201_CREATED

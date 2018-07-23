@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import request
+from flask import request , jsonify, make_response
 from flask_restful import Resource, reqparse, Api
 import cv2
 import numpy as np
@@ -10,6 +10,11 @@ import logging
 from restapi import recognize
 import datetime
 
+HTTP_400_BAD_REQUEST = 400
+HTTP_201_CREATED = 201
+HTTP_200_SUCCESS = 200
+ 
+UPLOAD_FOLDER = './images'
 
 class DetectType3Api(Resource):
     '''
@@ -41,13 +46,41 @@ class DetectType3Api(Resource):
     '''
     def get(self):
         parse = reqparse.RequestParser()
-        parse.add_argument('task_id', type=int, location='form')
-        parse.add_argument('user_id', type=int, location='form')
+        parse.add_argument('task_id', type=str, required=True)
+        parse.add_argument('user_id', type=str, required=True)
+        parse.add_argument('file_type', type=str, required=True)
         args = parse.parse_args()
 
-        file = args['user_file']
+        task_id = args['task_id']
+        user_id = args['user_id']
+        file_type = args['file_type']
 
+        self.mFileType = file_type
 
+        if task_id and user_id and file_type:
+
+            self.post2(task_id, UPLOAD_FOLDER)
+
+            response_data = {
+                        "msg": 'Access webpage success.',
+                        "ret": HTTP_200_SUCCESS,
+                        "data" : {
+                            "task_id": task_id,
+                            "user_id": user_id,
+                            "file_type": file_type
+                            "DocNumber": 1234
+                            "DocType": 5678
+                            }
+                        }
+            return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
+        else:
+            response_data = {
+                    "msg": 'request error.',
+                    "ret": HTTP_400_BAD_REQUEST,
+                    "data": {
+                        }
+                    }
+            return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST) 
 
     def post2(self, strJobId, strFilePath):
         self.mStrJobID = strJobId
@@ -67,11 +100,22 @@ class DetectType3Api(Resource):
         #file_path = json_data['file_path']
 
         job_id = self.mStrJobID
+        openfilename = self.mFilePath + '/' + self.mStrJobID + '.' + self.mFileType
+        print("openfilename=>", openfilename)
+
         #img = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
         #img = cv2.imread("/home/john/sources/opencv/tests/shapedection/fapiao1.png", cv2.IMREAD_UNCHANGED)
         #img = cv2.imread("/home/hello/work/OCRServer/inv_img/1001_IMG_1840.JPG", cv2.IMREAD_UNCHANGED)
-        img = cv2.imread(self.mFilePath, cv2.IMREAD_UNCHANGED)
-	    #img = cv2.imread("/home/john/sources/opencv/tests/threshold_test/fapiao1.png", cv2.IMREAD_UNCHANGED)
+
+        img = cv2.imread(openfilename, cv2.IMREAD_UNCHANGED)
+
+        #if img == None :
+        #    logging.error('the file not found!')
+        #    res = {
+        #            'code': 400,
+        #            'message': 'the file is not found!'
+        #        }   
+        #    return res
 
         logging.info('Original image size : %s' % ((img.shape[1], img.shape[0]) ,))
 
@@ -95,6 +139,7 @@ class DetectType3Api(Resource):
         return res
 
     def make_error_response(self, ori_image):
+
         return {
             'ori_image': {
                 'w': ori_image.shape[1],
