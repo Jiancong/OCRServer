@@ -5,6 +5,7 @@ from flask import request , jsonify, make_response
 from flask_restful import Resource, reqparse, Api
 import cv2
 import numpy as np
+import json, codecs
 from restapi import tools
 import logging
 from restapi import recognize
@@ -18,7 +19,7 @@ HTTP_200_SUCCESS = 200
 
 TESS_CMD='tesseract'
 RESULT_FOLDER = "./tmp"
- 
+ENCODING='utf-8' 
 UPLOAD_FOLDER = './images'
 
 class DetectType3Api(Resource):
@@ -64,6 +65,14 @@ class DetectType3Api(Resource):
 
         if task_id and user_id and file_type:
 
+            # attempt to retrieve info from backend directory.
+            # bypass post2 if result exists.
+            sdir = os.path.join(RESULT_FOLDER, task_id)
+            if os.path.exists(sdir) and os.path.exists(os.path.join(sdir, 'response.json')):
+                with open(os.path.join(sdir ,'response.json'), 'r') as file:
+                    response_data = json.load(file)
+                    return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
+
             res = self.post2(task_id, UPLOAD_FOLDER)
 
             if res['code'] == HTTP_400_BAD_REQUEST:
@@ -93,12 +102,19 @@ class DetectType3Api(Resource):
                     print("docttyperes=>", doctyperes)
 
                 with open(IMGDIR+"/roi-DocNumber.jpg", "rb") as image:
-                    encoded_docnum= base64.b64encode(image.read())
+                    # base64 encode read data
+                    # result: bytes
+                    docnum_b64encode_bytes= base64.b64encode(image.read())
+                    # decode these bytes to text
+                    #result: string(in utf-8)
+                    docnum_b64encode_string = docnum_b64encode_bytes.decode(ENCODING)
 
                 with open(IMGDIR+"/roi-DocType.jpg", "rb") as image:
-                    encoded_doctype= base64.b64encode(image.read())
+                    doctype_b64encode_bytes= base64.b64encode(image.read())
+                    doctype_b64encode_string = doctype_b64encode_bytes.decode(ENCODING)
 
                     
+                # result here: dict obj
                 response_data = {
                     "msg": 'Access webpage success.',
                     "ret": HTTP_200_SUCCESS,
@@ -108,10 +124,18 @@ class DetectType3Api(Resource):
                         "file_type": file_type,
                         "DocNumber_ocr_result": docnumres,
                         "DocType_ocr_result": doctyperes,
-                        "DocNumber_encode": encoded_docnum,
-                        "DocType_encode": encoded_doctype,
+                        "DocNumber_encode": docnum_b64encode_string,
+                        "DocType_encode": doctype_b64encode_string,
                         }
                     }
+
+                # store the parse result
+                with open(os.path.join(sdir, "response.json"), 'w') as outfile:
+                    # now encoding the data into json
+                    # result: string
+                    json_data=json.dumps(response_data, indent=2)
+                    outfile.write(json_data)
+
                 return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
         else:
             response_data = {
