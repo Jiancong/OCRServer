@@ -10,6 +10,7 @@ import logging
 from restapi import recognize
 import datetime
 import os
+import base64
 
 HTTP_400_BAD_REQUEST = 400
 HTTP_201_CREATED = 201
@@ -74,12 +75,13 @@ class DetectType3Api(Resource):
                         }
                 return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
             else:
+                IMGDIR=os.path.join(RESULT_FOLDER, task_id, "step1")   
 
                 # do tesseract to recognize the docnumber and doctype
                 print("CMD=>", TESS_CMD + " " + RESULT_FOLDER +"/" + task_id + "/step1/roi-DocNumber.jpg" + " docnumres -l lancejie_fapiao3")
                 os.system(TESS_CMD + " " + RESULT_FOLDER + \
                         "/" + task_id + "/step1/roi-DocNumber.jpg" + " docnumres -l lancejie_fapiao3")
-                doctyperes = os.system(TESS_CMD + " " + RESULT_FOLDER + \
+                os.system(TESS_CMD + " " + RESULT_FOLDER + \
                         "/" + task_id + "/step1/roi-DocType.jpg" + " doctyperes -l lancejie_shuipiao2")
 
                 with open("docnumres.txt") as file:  
@@ -89,6 +91,13 @@ class DetectType3Api(Resource):
                 with open("doctyperes.txt") as file:
                     doctyperes = file.read().rstrip()
                     print("docttyperes=>", doctyperes)
+
+                with open(IMGDIR+"/roi-DocNumber.jpg", "rb") as image:
+                    encoded_docnum= base64.b64encode(image.read())
+
+                with open(IMGDIR+"/roi-DocType.jpg", "rb") as image:
+                    encoded_doctype= base64.b64encode(image.read())
+
                     
                 response_data = {
                     "msg": 'Access webpage success.',
@@ -97,8 +106,10 @@ class DetectType3Api(Resource):
                         "task_id": task_id,
                         "user_id": user_id,
                         "file_type": file_type,
-                        "DocNumber": docnumres,
-                        "DocType": doctyperes,
+                        "DocNumber_ocr_result": docnumres,
+                        "DocType_ocr_result": doctyperes,
+                        "DocNumber_encode": encoded_docnum,
+                        "DocType_encode": encoded_doctype,
                         }
                     }
                 return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
