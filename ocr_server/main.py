@@ -10,14 +10,23 @@ import hashlib
 from flask_restful import Api
 from restapi import ExtractImage2, Ocr2, CompressImage, DetectType2, DetectType3, recognize
 from restapi.Uploader import Uploader
+from restapi.DatabaseApi import FetchRecordsApi, InsertRecordApi
 import logging
 import argparse
 from datetime import datetime
 from shutil import copyfile
 
-logging.basicConfig(level=logging.DEBUG, format="[%(asctime)s] %(levelname)-5s %(name)-8s - %(message)s")
-
 app = Flask(__name__)
+
+# MySQL configurations
+DB_HOST='localhost'
+DB_USER='testuser'
+DB_PASSWD='abcd1234'
+DB_NAME='ocrserver'
+
+api = Api(app)
+
+logging.basicConfig(level=logging.DEBUG, format="[%(asctime)s] %(levelname)-5s %(name)-8s - %(message)s")
 
 DEBUG_FILE_NUM=10
 
@@ -25,15 +34,17 @@ DEBUG_FILE_NUM=10
 def heath_check():
     return 'OK'
 
-api = Api(app)
 
 #api.add_resource(DetectType2.DetectType2Api, '/api/detect_invoice')
 #api.add_resource(ExtractImage2.ExtractImage2Api, '/api/extract_image')
 api.add_resource(Uploader, '/api/upload')
 api.add_resource(DetectType3.DetectType3Api, '/api/detect_in')
+api.add_resource(FetchRecordsApi, '/api/fetchrecords', 
+        resource_class_kwargs={'DB_HOST': DB_HOST, 'DB_USER': DB_USER, 'DB_PASSWD': DB_PASSWD, 'DB_NAME': DB_NAME})
+api.add_resource(InsertRecordApi, '/api/insert/', 
+        resource_class_kwargs={'DB_HOST': DB_HOST, 'DB_USER': DB_USER, 'DB_PASSWD': DB_PASSWD, 'DB_NAME': DB_NAME})
 #api.add_resource(Ocr2.OCR2Api, '/api/ocr')
 #api.add_resource(CompressImage.CompressImageApi, '/api/compress_image')
-#api.add_resources()
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()

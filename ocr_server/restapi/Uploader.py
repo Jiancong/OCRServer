@@ -15,6 +15,11 @@ import numpy as np
 import logging
 import os
 
+import urllib.parse
+import urllib.request
+
+from restapi.DatabaseApi import InsertRecordApi
+
 UPLOAD_FOLDER = './images'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg',  'bmp' ])
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024
@@ -35,6 +40,14 @@ class Uploader(Resource):
         file_ext=filename.rsplit('.', 1)[-1]
         status = '.' in filename and file_ext in ALLOWED_EXTENSIONS
         return file_ext, status
+
+    def send_request(self, url, values):
+        data = urllib.parse.urlencode(values)
+        data = data.encode() # data should be bytes
+        req = urllib.request.Request(url, data=data)
+        #response = urllib.request.urlopen(req)
+        with urllib.request.urlopen(req) as response:
+               the_page = response.read()
 
     def upload(self):
         return render_template('upload.html')
@@ -79,6 +92,12 @@ class Uploader(Resource):
                 md5filename = self.md5(filename_with_path)
                 md5filename_with_ext = md5filename + "." + fext
 
+                # record this file info in db.
+                url="http://localhost:5000/api/insert/"
+                values = {"user_id": args['user_id'], "task_id": md5filename}
+                print("values=>", values)
+                self.send_request(url, values)
+                
                 newfilename = os.path.join(UPLOAD_FOLDER, md5filename_with_ext)
 
                 if os.path.exists(newfilename):
