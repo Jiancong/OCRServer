@@ -94,7 +94,7 @@ class Uploader(Resource):
 
                 # record this file info in db.
                 url="http://localhost:5000/api/insert/"
-                values = {"user_id": args['user_id'], "task_id": md5filename}
+                values = {"user_id": args['user_id'], "task_id": md5filename, "file_type": fext}
                 print("values=>", values)
                 self.send_request(url, values)
                 
@@ -121,7 +121,6 @@ class Uploader(Resource):
                         "data":{
                             "user_id": args['user_id'],
                             "task_id": md5filename,
-                            "file_type": fext,
                             },
                     "msg": 'Upload file successfully',
                     "ret": HTTP_201_CREATED

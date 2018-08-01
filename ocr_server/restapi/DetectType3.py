@@ -13,6 +13,9 @@ import datetime
 import os
 import base64
 
+import MySQLdb
+import gc
+
 HTTP_400_BAD_REQUEST = 400
 HTTP_201_CREATED = 201
 HTTP_200_SUCCESS = 200
@@ -23,6 +26,11 @@ ENCODING='utf-8'
 UPLOAD_FOLDER = './images'
 
 class DetectType3Api(Resource):
+    def __init__(self, DB_HOST, DB_USER, DB_PASSWD, DB_NAME):
+        self.db_host = DB_HOST
+        self.db_user = DB_USER
+        self.db_passwd = DB_PASSWD
+        self.db_name = DB_NAME
     '''
     'ori_image': {
         # ori_w, ori_h is the origin image without any change (uploaded by wechat)
@@ -53,13 +61,25 @@ class DetectType3Api(Resource):
     def get(self):
         parse = reqparse.RequestParser()
         parse.add_argument('task_id', type=str, required=True)
-        parse.add_argument('user_id', type=str, required=True)
-        parse.add_argument('file_type', type=str, required=True)
+        parse.add_argument('user_id', type=int, required=True)
         args = parse.parse_args()
 
         task_id = args['task_id']
         user_id = args['user_id']
-        file_type = args['file_type']
+        print("task_id=>", task_id, ",user_id=>", user_id)
+        # retrieve file type from task_id
+        conn= MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
+        with conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT file_type from tasks where task_id =%s", (task_id, ))
+            conn.commit()
+            dataset = cursor.fetchall()
+            print('Total Row(s) fetched:', cursor.rowcount)
+            for row in dataset:
+                #print("row=>", row)
+                file_type = row[0]
+
+        #file_type = args['file_type']
 
         self.mFileType = file_type
 

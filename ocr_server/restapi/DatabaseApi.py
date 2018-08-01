@@ -22,17 +22,23 @@ class InsertRecordApi(Resource):
             parse = reqparse.RequestParser()
             parse.add_argument('user_id', type=int, required=True)
             parse.add_argument('task_id', type=str, required=True)
+            parse.add_argument('file_type', type=str, required=True)
             args = parse.parse_args()
             user_id = args['user_id']
             task_id = args['task_id']
+            file_type = args['file_type']
+            print("user_id=>", user_id, ",task_id=>", task_id, ", file_type=>", file_type)
 
             if user_id and task_id:
                 conn = MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
                 with conn:
                     cursor = conn.cursor() 
+                    cursor.execute('INSERT INTO tasks (task_id, file_type) values(%s, %s)', 
+                                    [task_id, file_type])
+                    conn.commit()
+
                     cursor.execute('INSERT INTO records (user_id, task_id ) values(%s, %s)',
                                     [user_id, task_id])
-
                     conn.commit()
                     print(cursor.rowcount, " record inserted.")
                     cursor.close()
