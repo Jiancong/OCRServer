@@ -101,7 +101,11 @@ class FetchRecordsApi(Resource):
                                 "task_id_list": j_res,
                                 }
                             }
-                    return make_response(jsonify(response_data), HTTP_202_ACCEPTED)
+                    response_json = make_response(jsonify(response_data), HTTP_202_ACCEPTED)
+                    response_json.headers['Access-Control-Allow-Origin'] = '*'
+                    return response_json
+                    
+
 
         except Exception as e:
             return {'error': str(e)}
