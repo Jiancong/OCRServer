@@ -74,12 +74,19 @@ class DetectType3Api(Resource):
             cursor.execute("SELECT file_type from tasks where task_id =%s", (task_id, ))
             conn.commit()
             dataset = cursor.fetchall()
+            # this task_id is not existed.
+            if cursor.rowcount == 0:
+                response_data = {
+                        "msg": 'Bad request.',
+                        "ret": HTTP_400_BAD_REQUEST,
+                        "data":{
+                            }
+                        }
+                return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
+                
             print('Total Row(s) fetched:', cursor.rowcount)
             for row in dataset:
-                #print("row=>", row)
                 file_type = row[0]
-
-        #file_type = args['file_type']
 
         self.mFileType = file_type
 
