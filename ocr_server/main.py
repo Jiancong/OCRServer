@@ -40,6 +40,8 @@ def heath_check():
 api.add_resource(Uploader, '/api/upload')
 api.add_resource(DetectType3.DetectType3Api, '/api/detect_in',
         resource_class_kwargs={'DB_HOST': DB_HOST, 'DB_USER': DB_USER, 'DB_PASSWD': DB_PASSWD, 'DB_NAME': DB_NAME})
+api.add_resource(DetectType3.GetTaskImageApi, '/api/fetchimage',
+        resource_class_kwargs={'DB_HOST': DB_HOST, 'DB_USER': DB_USER, 'DB_PASSWD': DB_PASSWD, 'DB_NAME': DB_NAME})
 api.add_resource(FetchRecordsApi, '/api/fetchrecords', 
         resource_class_kwargs={'DB_HOST': DB_HOST, 'DB_USER': DB_USER, 'DB_PASSWD': DB_PASSWD, 'DB_NAME': DB_NAME})
 api.add_resource(InsertRecordApi, '/api/insert/', 

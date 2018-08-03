@@ -22,8 +22,68 @@ HTTP_200_SUCCESS = 200
 
 TESS_CMD='tesseract'
 RESULT_FOLDER = "./tmp"
-ENCODING='utf-8' 
+ENCODING='ascii' 
 UPLOAD_FOLDER = './images'
+
+class GetTaskImageApi(Resource):
+    def __init__(self, DB_HOST, DB_USER, DB_PASSWD, DB_NAME):
+        self.db_host = DB_HOST
+        self.db_user = DB_USER
+        self.db_passwd = DB_PASSWD
+        self.db_name = DB_NAME
+
+    def get(self):
+        parse = reqparse.RequestParser()
+        parse.add_argument('task_id', type=str, required=True)
+
+        args = parse.parse_args()
+
+        task_id = args['task_id']
+
+        # retrieve file type
+        conn= MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
+        with conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT file_type from tasks where task_id =%s", (task_id, ))
+            conn.commit()
+            dataset = cursor.fetchall()
+
+            # this task_id is not existed.
+            if cursor.rowcount == 0:
+                response_data = {
+                    "msg": 'Bad request.',
+                    "ret": HTTP_400_BAD_REQUEST,
+                    "data":{}
+                }
+                return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
+
+            print('Total Row(s) fetched:', cursor.rowcount)
+
+            for row in dataset:
+                file_type = row[0]
+
+        self.mFileType = file_type
+
+        filepath = UPLOAD_FOLDER+"/" + task_id + "." + self.mFileType
+        print(filepath)
+
+        with open(filepath, "rb") as image:
+            image_b64encode_string = base64.b64encode(image.read())
+
+        # result here: dict obj
+        response_data = {
+            "msg": 'Access webpage success.',
+            "ret": HTTP_200_SUCCESS,
+            "data" : {
+                "task_id": task_id,
+                "file_type": self.mFileType,
+                "imageb64": image_b64encode_string,
+            }
+        }
+
+        return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
+
+
 
 class DetectType3Api(Resource):
     def __init__(self, DB_HOST, DB_USER, DB_PASSWD, DB_NAME):
@@ -66,7 +126,9 @@ class DetectType3Api(Resource):
 
         task_id = args['task_id']
         user_id = args['user_id']
+
         print("task_id=>", task_id, ",user_id=>", user_id)
+
         # retrieve file type from task_id
         conn= MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
         with conn:
@@ -131,17 +193,11 @@ class DetectType3Api(Resource):
                 with open(IMGDIR+"/roi-DocNumber.jpg", "rb") as image:
                     # base64 encode read data
                     # result: bytes
-                    docnum_b64encode_bytes= base64.b64encode(image.read())
-                    # decode these bytes to text
-                    #result: string(in utf-8)
-                    docnum_b64encode_string = docnum_b64encode_bytes.decode(ENCODING)
+                    docnum_b64encode_string= base64.b64encode(image.read())
 
                 with open(IMGDIR+"/roi-DocType.jpg", "rb") as image:
-                    doctype_b64encode_bytes= base64.b64encode(image.read())
-                    doctype_b64encode_string = doctype_b64encode_bytes.decode(ENCODING)
+                    doctype_b64encode_string = base64.b64encode(image.read())
 
-                    
-                # result here: dict obj
                 response_data = {
                     "msg": 'Access webpage success.',
                     "ret": HTTP_200_SUCCESS,
@@ -153,9 +209,9 @@ class DetectType3Api(Resource):
                         "DocType_ocr_result": doctyperes,
                         "DocNumber_encode": docnum_b64encode_string,
                         "DocType_encode": doctype_b64encode_string,
-                        }
                     }
-
+                }
+    
                 # store the parse result
                 with open(os.path.join(sdir, "response.json"), 'w') as outfile:
                     # now encoding the data into json
