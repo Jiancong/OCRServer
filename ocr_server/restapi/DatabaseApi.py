@@ -10,6 +10,54 @@ import json
 
 HTTP_202_ACCEPTED = 202
 
+class InsertResultApi(Resource):
+    def __init__(self, DB_HOST, DB_USER, DB_PASSWD, DB_NAME):
+        self.db_host = DB_HOST
+        self.db_user = DB_USER
+        self.db_passwd = DB_PASSWD
+        self.db_name = DB_NAME
+
+    def post(self):
+        try:
+            json_data = request.get_json(force=True)
+            task_id = json_data['task_id']
+            user_id = json_data['user_id']
+            docnum = json_data['docnumber_ocr_result']
+            doctype = json_data['doctype_ocr_result']
+
+            if user_id and task_id:
+                conn = MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
+                with conn:
+                    cursor = conn.cursor()
+                    query_string = "SELECT * FROM records WHERE user_id = '{userid}'".format(userid=user_id) 
+                    cursor.execute(query_string)
+                    conn.commit()
+
+                    dataset = cursor.fetchall()
+                    print('Total Row(s) fetched:', cursor.rowcount)
+
+                    if not cursor.rowcount:
+                        response_data = {
+                                    "msg": 'bad request.',
+                                    "ret": HTTP_400_BAD_REQUEST
+                                    }
+                        return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
+
+                    result=[]
+                    for row in dataset:
+                        record_id = row[0]
+                        task_id = row[1]
+                        user_id = row[2]
+                        update_string = "UPDATE records SET doc_type = '{doctype}', doc_num='{docnum}' where task_id = '{taskid}'".format                                        (doctype=doctype, docnum=docnum, taskid=task_id)
+                        cursor.execute(update_string)
+                        conn.commit()
+                        print ("record_id=%s,task_id=%s,user_id=%d, doc_type=%s, doc_num=%s" % (record_id, task_id, user_id, doctype, docnum))
+
+                    return {'ret':HTTP_202_ACCEPTED,'msg': 'Success'}
+
+        except Exception as e:
+            return {'error': str(e)}
+
 class InsertRecordApi(Resource):
     def __init__(self, DB_HOST, DB_USER, DB_PASSWD, DB_NAME):
         self.db_host = DB_HOST
