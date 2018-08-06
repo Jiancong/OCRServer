@@ -158,6 +158,7 @@ class DetectType3Api(Resource):
             # bypass post2 if result exists.
             sdir = os.path.join(RESULT_FOLDER, task_id)
             if os.path.exists(sdir) and os.path.exists(os.path.join(sdir, 'response.json')):
+                print("path=>", sdir + "response.json")
                 with open(os.path.join(sdir ,'response.json'), 'r') as file:
                     response_data = json.load(file)
                     return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
@@ -193,10 +194,12 @@ class DetectType3Api(Resource):
                 with open(IMGDIR+"/roi-DocNumber.jpg", "rb") as image:
                     # base64 encode read data
                     # result: bytes
-                    docnum_b64encode_string= base64.b64encode(image.read())
+                    docnum_b64encode_bytes = base64.b64encode(image.read())
+                    docnum_b64encode_string= docnum_b64encode_bytes.decode('utf-8')
 
                 with open(IMGDIR+"/roi-DocType.jpg", "rb") as image:
-                    doctype_b64encode_string = base64.b64encode(image.read())
+                    doctype_b64encode_bytes = base64.b64encode(image.read())
+                    doctype_b64encode_string = doctype_b64encode_bytes.decode('utf-8')
 
                 response_data = {
                     "msg": 'Access webpage success.',
@@ -216,7 +219,7 @@ class DetectType3Api(Resource):
                 with open(os.path.join(sdir, "response.json"), 'w') as outfile:
                     # now encoding the data into json
                     # result: string
-                    json_data=json.dumps(response_data, indent=2)
+                    json_data=json.dumps(list(response_data.values()))
                     outfile.write(json_data)
 
                 return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
