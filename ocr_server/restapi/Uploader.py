@@ -93,7 +93,7 @@ class Uploader(Resource):
                 md5filename_with_ext = md5filename + "." + fext
 
                 # record this file info in db.
-                url="http://localhost:5000/api/insert/"
+                url="http://localhost:5000/api/insert/record"
                 values = {"user_id": args['user_id'], "task_id": md5filename, "file_type": fext}
                 print("values=>", values)
                 self.send_request(url, values)
