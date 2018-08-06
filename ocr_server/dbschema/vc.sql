@@ -32,7 +32,7 @@ DROP TABLE IF EXISTS `records`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `records` (
   `record_id` int(11) NOT NULL AUTO_INCREMENT,
-  `task_id` varchar(256) DEFAULT NULL,
+  `task_id` varchar(255) DEFAULT NULL,
   `user_id` int(11) NOT NULL,
   `doc_type` varchar(255) DEFAULT NULL,
   `doc_num` varchar(255) DEFAULT NULL,
