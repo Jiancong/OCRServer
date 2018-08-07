@@ -161,6 +161,11 @@ class DetectType3Api(Resource):
                 print("path=>", sdir + "response.json")
                 with open(os.path.join(sdir ,'response.json'), 'r') as file:
                     response_data = json.load(file)
+                    response_data = {
+                            "msg": 'Success.',
+                            "ret": HTTP_200_SUCCESS,
+                            "data": {}
+                            }
                     return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
 
             res = self.post2(task_id, UPLOAD_FOLDER)
