@@ -36,12 +36,13 @@ class InsertResultApi(Resource):
                     dataset = cursor.fetchall()
                     print('Total Row(s) fetched:', cursor.rowcount)
 
-                    if not cursor.rowcount:
-                        response_data = {
+                    if not cursor.rowcount :
+                        response_packet = {
                                     "msg": 'bad request.',
-                                    "ret": HTTP_400_BAD_REQUEST
+                                    "ret": HTTP_400_BAD_REQUEST,
+                                    "data": {}
                                     }
-                        return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
+                        return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
 
                     result=[]
                     for row in dataset:
@@ -53,7 +54,12 @@ class InsertResultApi(Resource):
                         conn.commit()
                         print ("record_id=%s,task_id=%s,user_id=%d, doc_type=%s, doc_num=%s" % (record_id, task_id, user_id, doctype, docnum))
 
-                    return {'ret':HTTP_202_ACCEPTED,'msg': 'Success'}
+                    response_packet = {
+                            "msg": "Success.",
+                            "ret": HTTP_202_ACCEPTED,
+                            "data": {}
+                            }
+                    return make_response(jsonify(response_packet), HTTP_202_ACCEPTED) # <- the status_code displayed code on console
 
         except Exception as e:
             return {'error': str(e)}

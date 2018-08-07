@@ -50,12 +50,12 @@ class GetTaskImageApi(Resource):
 
             # this task_id is not existed.
             if cursor.rowcount == 0:
-                response_data = {
+                response_packet = {
                     "msg": 'Bad request.',
                     "ret": HTTP_400_BAD_REQUEST,
                     "data":{}
                 }
-                return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
+                return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST)
 
             print('Total Row(s) fetched:', cursor.rowcount)
 
@@ -71,7 +71,7 @@ class GetTaskImageApi(Resource):
             image_b64encode_string = base64.b64encode(image.read())
 
         # result here: dict obj
-        response_data = {
+        response_packet = {
             "msg": 'Access webpage success.',
             "ret": HTTP_200_SUCCESS,
             "data" : {
@@ -81,7 +81,7 @@ class GetTaskImageApi(Resource):
             }
         }
 
-        return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
+        return make_response(jsonify(response_packet), HTTP_200_SUCCESS) # <- the status_code displayed code on console
 
 
 
@@ -138,13 +138,13 @@ class DetectType3Api(Resource):
             dataset = cursor.fetchall()
             # this task_id is not existed.
             if cursor.rowcount == 0:
-                response_data = {
+                response_packet = {
                         "msg": 'Bad request.',
                         "ret": HTTP_400_BAD_REQUEST,
                         "data":{
                             }
                         }
-                return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
+                return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST)
                 
             print('Total Row(s) fetched:', cursor.rowcount)
             for row in dataset:
@@ -160,24 +160,24 @@ class DetectType3Api(Resource):
             if os.path.exists(sdir) and os.path.exists(os.path.join(sdir, 'response.json')):
                 print("path=>", sdir + "response.json")
                 with open(os.path.join(sdir ,'response.json'), 'r') as file:
-                    response_data = json.load(file)
-                    response_data = {
+                    json_string = json.load(file)
+                    response_packet = {
                             "msg": 'Success.',
                             "ret": HTTP_200_SUCCESS,
-                            "data": {}
+                            "data": json_string,
                             }
-                    return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
+                    return make_response(jsonify(response_packet), HTTP_200_SUCCESS) # <- the status_code displayed code on console
 
             res = self.post2(task_id, UPLOAD_FOLDER)
 
             if res['code'] == HTTP_400_BAD_REQUEST:
-                response_data = {
+                response_packet = {
                         "msg": 'Bad request.',
                         "ret": HTTP_400_BAD_REQUEST,
                         "data":{
                             }
                         }
-                return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
+                return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST)
             else:
                 IMGDIR=os.path.join(RESULT_FOLDER, task_id, "step1")   
 
@@ -207,35 +207,37 @@ class DetectType3Api(Resource):
                     doctype_b64encode_string = doctype_b64encode_bytes.decode('utf-8')
 
                 response_data = {
+                            "task_id": task_id,
+                            "user_id": user_id,
+                            "file_type": file_type,
+                            "docnumber_ocr_result": docnumres,
+                            "doctype_ocr_result": doctyperes,
+                            "docnumber_encode": docnum_b64encode_string,
+                            "doctype_encode": doctype_b64encode_string,
+                        }
+
+                response_packet = {
                     "msg": 'Access webpage success.',
                     "ret": HTTP_200_SUCCESS,
-                    "data" : {
-                        "task_id": task_id,
-                        "user_id": user_id,
-                        "file_type": file_type,
-                        "DocNumber_ocr_result": docnumres,
-                        "DocType_ocr_result": doctyperes,
-                        "DocNumber_encode": docnum_b64encode_string,
-                        "DocType_encode": doctype_b64encode_string,
-                    }
+                    "data" : response_data,
                 }
     
                 # store the parse result
                 with open(os.path.join(sdir, "response.json"), 'w') as outfile:
                     # now encoding the data into json
                     # result: string
-                    json_data=json.dumps(list(response_data.values()))
+                    json_data=json.dumps(response_data)
                     outfile.write(json_data)
 
-                return make_response(jsonify(response_data), HTTP_200_SUCCESS) # <- the status_code displayed code on console
+                return make_response(jsonify(response_packet), HTTP_200_SUCCESS) # <- the status_code displayed code on console
         else:
-            response_data = {
+            response_packet = {
                     "msg": 'request error.',
                     "ret": HTTP_400_BAD_REQUEST,
                     "data": {
                         }
                     }
-            return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST) 
+            return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) 
 
     def post2(self, strJobId, strFilePath):
         self.mStrJobID = strJobId
