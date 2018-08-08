@@ -220,8 +220,8 @@ class DetectType3Api(Resource):
                             "file_type": file_type,
                             "docnumber_ocr_result": docnumres,
                             "doctype_ocr_result": doctyperes,
-                            #"docnumber_encode": docnum_b64encode_string,
-                            #"doctype_encode": doctype_b64encode_string,
+                            "docnumber_encode": docnum_b64encode_string,
+                            "doctype_encode": doctype_b64encode_string,
                         }
 
                 response_packet = {
