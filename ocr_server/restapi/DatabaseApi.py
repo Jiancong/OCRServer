@@ -76,6 +76,8 @@ class InsertResultApi(Resource):
                             "data": {}
                             }
                     return make_response(jsonify(response_packet), HTTP_202_ACCEPTED) # <- the status_code displayed code on console
+            else:
+                raise ValueError("invalid user_id or task_id", user_id, task_id)
 
         except ValueError as err:
             print(err.args)
