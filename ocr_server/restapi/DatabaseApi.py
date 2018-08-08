@@ -10,6 +10,7 @@ import json
 import os
 
 HTTP_202_ACCEPTED = 202
+HTTP_400_BAD_REQUEST = 400
 RESULT_FOLDER = "./tmp"
 
 
@@ -32,7 +33,7 @@ class InsertResultApi(Resource):
                 conn = MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
                 with conn:
                     cursor = conn.cursor()
-                    query_string = "SELECT * FROM records WHERE task_id = '{taskid}'".format(taskid=task_id) 
+                    query_string = "SELECT * FROM records WHERE task_id = '{taskid}' and user_id={userid}".format(taskid=task_id, userid=user_id) 
                     cursor.execute(query_string)
                     conn.commit()
 
@@ -40,12 +41,7 @@ class InsertResultApi(Resource):
                     print('Total Row(s) fetched:', cursor.rowcount)
 
                     if not cursor.rowcount :
-                        response_packet = {
-                                    "msg": 'bad request.',
-                                    "ret": HTTP_400_BAD_REQUEST,
-                                    "data": {}
-                                    }
-                        return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
+                        raise ValueError("Can't find specific info:", task_id, user_id)
 
                     for row in dataset:
                         record_id = row[0]
@@ -71,7 +67,8 @@ class InsertResultApi(Resource):
                                 file.seek(0)
                                 file.write(json.dumps(json_string))
                                 file.truncate()
-
+                        else:
+                            raise ValueError("response.json file can't find", sdir)
     
                     response_packet = {
                             "msg": "Success.",
@@ -80,8 +77,14 @@ class InsertResultApi(Resource):
                             }
                     return make_response(jsonify(response_packet), HTTP_202_ACCEPTED) # <- the status_code displayed code on console
 
-        except Exception as e:
-            return {'error': str(e)}
+        except ValueError as err:
+            print(err.args)
+            response_packet = {
+                "msg": 'bad request.',
+                "ret": HTTP_400_BAD_REQUEST,
+                "data": {}
+            }
+            return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
 
 class InsertRecordApi(Resource):
     def __init__(self, DB_HOST, DB_USER, DB_PASSWD, DB_NAME):
@@ -114,14 +117,32 @@ class InsertRecordApi(Resource):
                                     [user_id, task_id])
                     conn.commit()
                     print(cursor.rowcount, " record inserted.")
+                    if cursor.rowcount == 0 :
+                        raise ValueError("No record found.", user_id, task_id)
                     cursor.close()
                     
                     gc.collect()
+                    response_packet = {
+                        "msg": 'Success.',
+                        "ret": HTTP_202_ACCEPTED,
+                        "data": {}
+                    }
+                    return make_response(jsonify(response_packet), HTTP_202_ACCEPTED) # <- the status_code displayed code on console
 
-                    return {'ret':HTTP_202_ACCEPTED,'msg': 'Success'}
+        except ValueError as err:
+            print(err.args)
+            response_packet = {
+                "msg": 'bad request.',
+                "ret": HTTP_400_BAD_REQUEST,
+                "data": {}
+            }
+            return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
 
-        except Exception as e:
-            return {'error': str(e)}
+        finally:
+            cursor.close()
+            
+            gc.collect()
+
 
 
 class FetchRecordsApi(Resource):
@@ -141,7 +162,7 @@ class FetchRecordsApi(Resource):
             print("user_id =>", user_id)
 
             if user_id is None:
-                pass
+                raise ValueError("user_id is Null") 
             else:
                 conn = MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
                 with conn:
@@ -153,6 +174,9 @@ class FetchRecordsApi(Resource):
 
                     dataset = cursor.fetchall()
                     print('Total Row(s) fetched:', cursor.rowcount)
+
+                    if cursor.rowcount == 0:
+                        raise ValueError("no record found, ", user_id)
 
                     result=[]
 
@@ -178,8 +202,12 @@ class FetchRecordsApi(Resource):
                     response_json.headers['Access-Control-Allow-Origin'] = '*'
                     return response_json
                     
-
-
-        except Exception as e:
-            return {'error': str(e)}
+        except ValueError as err:
+            print(err.args)
+            response_packet = {
+                "msg": 'bad request.',
+                "ret": HTTP_400_BAD_REQUEST,
+                "data": {}
+            }
+            return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
     
