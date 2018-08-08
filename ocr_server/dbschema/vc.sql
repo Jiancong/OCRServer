@@ -32,7 +32,7 @@ DROP TABLE IF EXISTS `records`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `records` (
   `record_id` int(11) NOT NULL AUTO_INCREMENT,
-  `task_id` varchar(255) DEFAULT NULL,
+  `task_id` varchar(256) DEFAULT NULL,
   `user_id` int(11) NOT NULL,
   `doc_type` varchar(255) DEFAULT NULL,
   `doc_num` varchar(255) DEFAULT NULL,
@@ -41,8 +41,18 @@ CREATE TABLE `records` (
   KEY `fk_user_id` (`user_id`),
   CONSTRAINT `fk_task_id` FOREIGN KEY (`task_id`) REFERENCES `tasks` (`task_id`),
   CONSTRAINT `records_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `records`
+--
+
+LOCK TABLES `records` WRITE;
+/*!40000 ALTER TABLE `records` DISABLE KEYS */;
+INSERT INTO `records` VALUES (10,'b346a539dec05ed0bade6dd015e96933',1,'3','112'),(12,'7baadb3c1e5890ad1a3054b5165ecbd6',1,'356','11234');
+/*!40000 ALTER TABLE `records` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `tasks`
@@ -54,9 +64,20 @@ DROP TABLE IF EXISTS `tasks`;
 CREATE TABLE `tasks` (
   `task_id` varchar(255) NOT NULL,
   `file_type` varchar(10) NOT NULL,
+  UNIQUE KEY `uq_taskid` (`task_id`),
   KEY `task_id` (`task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tasks`
+--
+
+LOCK TABLES `tasks` WRITE;
+/*!40000 ALTER TABLE `tasks` DISABLE KEYS */;
+INSERT INTO `tasks` VALUES ('7baadb3c1e5890ad1a3054b5165ecbd6','jpg'),('b346a539dec05ed0bade6dd015e96933','jpg');
+/*!40000 ALTER TABLE `tasks` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `users`
@@ -73,6 +94,16 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,'test',123,'123@qq.com');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -83,4 +114,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-06 16:48:35
+-- Dump completed on 2018-08-08 13:45:07
