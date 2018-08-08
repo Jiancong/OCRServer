@@ -158,7 +158,7 @@ class DetectType3Api(Resource):
             # bypass post2 if result exists.
             sdir = os.path.join(RESULT_FOLDER, task_id)
             if os.path.exists(sdir) and os.path.exists(os.path.join(sdir, 'response.json')):
-                print("path=>", sdir + "response.json")
+                print("path=>", sdir + "/response.json")
                 with open(os.path.join(sdir ,'response.json'), 'r') as file:
                     json_string = json.load(file)
                     response_packet = {
@@ -194,7 +194,7 @@ class DetectType3Api(Resource):
 
                 with open("doctyperes.txt") as file:
                     doctyperes = file.read().rstrip()
-                    print("docttyperes=>", doctyperes)
+                    print("doctyperes=>", doctyperes)
 
                 with open(IMGDIR+"/roi-DocNumber.jpg", "rb") as image:
                     # base64 encode read data
@@ -206,14 +206,22 @@ class DetectType3Api(Resource):
                     doctype_b64encode_bytes = base64.b64encode(image.read())
                     doctype_b64encode_string = doctype_b64encode_bytes.decode('utf-8')
 
+                conn = MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
+                with conn:
+                    cursor = conn.cursor()
+                    update_string = "UPDATE records SET doc_type = '{doctype}', doc_num='{docnum}' where task_id = '{taskid}'".format(doctype=doctyperes, docnum=docnumres, taskid=task_id)
+                    cursor.execute(update_string)
+                    conn.commit()
+                    print("update task_id=%s, doc_type=%s, doc_num=%s" % (task_id, doctyperes, docnumres))
+
                 response_data = {
                             "task_id": task_id,
                             "user_id": user_id,
                             "file_type": file_type,
                             "docnumber_ocr_result": docnumres,
                             "doctype_ocr_result": doctyperes,
-                            "docnumber_encode": docnum_b64encode_string,
-                            "doctype_encode": doctype_b64encode_string,
+                            #"docnumber_encode": docnum_b64encode_string,
+                            #"doctype_encode": doctype_b64encode_string,
                         }
 
                 response_packet = {

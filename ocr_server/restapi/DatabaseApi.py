@@ -7,8 +7,11 @@ from flask_restful import Resource, reqparse, Api
 import MySQLdb
 import gc
 import json
+import os
 
 HTTP_202_ACCEPTED = 202
+RESULT_FOLDER = "./tmp"
+
 
 class InsertResultApi(Resource):
     def __init__(self, DB_HOST, DB_USER, DB_PASSWD, DB_NAME):
@@ -44,7 +47,6 @@ class InsertResultApi(Resource):
                                     }
                         return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
 
-                    result=[]
                     for row in dataset:
                         record_id = row[0]
                         task_id = row[1]
@@ -53,7 +55,16 @@ class InsertResultApi(Resource):
                         cursor.execute(update_string)
                         conn.commit()
                         print ("record_id=%s,task_id=%s,user_id=%d, doc_type=%s, doc_num=%s" % (record_id, task_id, user_id, doctype, docnum))
+                        sdir = os.path.join(RESULT_FOLDER, task_id)
+                        print("sdir==>", sdir)
 
+                        if os.path.exists(os.path.join(sdir, 'response.json')):
+                            with open(os.path.join(sdir, "response.json"), 'r') as file:
+                                json_string = json.loads(file.read())
+
+                                print('json_string.type=>', type(json_string))
+                                #print("new docnum===>", json_string['docnumber_ocr_result'])
+    
                     response_packet = {
                             "msg": "Success.",
                             "ret": HTTP_202_ACCEPTED,
