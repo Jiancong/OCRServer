@@ -32,7 +32,7 @@ class InsertResultApi(Resource):
                 conn = MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
                 with conn:
                     cursor = conn.cursor()
-                    query_string = "SELECT * FROM records WHERE user_id = '{userid}'".format(userid=user_id) 
+                    query_string = "SELECT * FROM records WHERE task_id = '{taskid}'".format(taskid=task_id) 
                     cursor.execute(query_string)
                     conn.commit()
 
@@ -56,14 +56,22 @@ class InsertResultApi(Resource):
                         conn.commit()
                         print ("record_id=%s,task_id=%s,user_id=%d, doc_type=%s, doc_num=%s" % (record_id, task_id, user_id, doctype, docnum))
                         sdir = os.path.join(RESULT_FOLDER, task_id)
-                        print("sdir==>", sdir)
 
                         if os.path.exists(os.path.join(sdir, 'response.json')):
-                            with open(os.path.join(sdir, "response.json"), 'r') as file:
+                            with open(os.path.join(sdir, "response.json"), 'r+') as file:
                                 json_string = json.loads(file.read())
 
-                                print('json_string.type=>', type(json_string))
+                                #print('json_string.type=>', type(json_string))
+                                #print("old docnum===>", json_string['docnumber_ocr_result'])
+                                #print("old doctype===>", json_string['doctype_ocr_result'])
+                                json_string['docnumber_ocr_result'] = docnum
+                                json_string['doctype_ocr_result'] = doctype
                                 #print("new docnum===>", json_string['docnumber_ocr_result'])
+                                #print("new doctype===>", json_string['doctype_ocr_result'])
+                                file.seek(0)
+                                file.write(json.dumps(json_string))
+                                file.truncate()
+
     
                     response_packet = {
                             "msg": "Success.",
