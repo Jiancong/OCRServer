@@ -119,133 +119,133 @@ class DetectType3Api(Resource):
 
     '''
     def get(self):
-        parse = reqparse.RequestParser()
-        parse.add_argument('task_id', type=str, required=True)
-        parse.add_argument('user_id', type=int, required=True)
-        args = parse.parse_args()
+        try:
+            parse = reqparse.RequestParser()
+            parse.add_argument('task_id', type=str, required=True)
+            parse.add_argument('user_id', type=int, required=True)
+            args = parse.parse_args()
 
-        task_id = args['task_id']
-        user_id = args['user_id']
+            task_id = args['task_id']
+            user_id = args['user_id']
 
-        print("task_id=>", task_id, ",user_id=>", user_id)
+            print("task_id=>", task_id, ",user_id=>", user_id)
 
-        # retrieve file type from task_id
-        conn= MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
-        with conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT file_type from tasks where task_id =%s and user_id=%s", (task_id, user_id))
-            conn.commit()
-            dataset = cursor.fetchall()
-            # this task_id is not existed.
-            if cursor.rowcount == 0:
-                response_packet = {
-                        "msg": 'Bad request.',
-                        "ret": HTTP_400_BAD_REQUEST,
-                        "data":{
+            # retrieve file type from task_id
+            conn= MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
+            with conn:
+                cursor = conn.cursor()
+
+                cursor.execute("SELECT id from users where id = %s", (user_id, ))
+                conn.commit()
+                dataset = cursor.fetchall()
+                if cursor.rowcount == 0:
+                    raise ValueError("invalid user_id:", user_id)
+
+                cursor.execute("SELECT file_type from tasks where task_id =%s ", (task_id, ))
+                conn.commit()
+                dataset = cursor.fetchall()
+                # this task_id is not existed.
+                if cursor.rowcount == 0:
+                   raise ValueError("task_id is not existed.") 
+                print('Total Row(s) fetched:', cursor.rowcount)
+
+                for row in dataset:
+                    file_type = row[0]
+
+            self.mFileType = file_type
+
+            if task_id and user_id and file_type:
+
+                # attempt to retrieve info from backend directory.
+                # bypass post2 if result exists.
+                sdir = os.path.join(RESULT_FOLDER, task_id)
+                if os.path.exists(sdir) and os.path.exists(os.path.join(sdir, 'response.json')):
+                    print("path=>", sdir + "/response.json")
+                    with open(os.path.join(sdir ,'response.json'), 'r') as file:
+                        json_string = json.load(file)
+                        response_packet = {
+                                "msg": 'Success.',
+                                "ret": HTTP_200_SUCCESS,
+                                "data": json_string,
+                                }
+                        return make_response(jsonify(response_packet), HTTP_200_SUCCESS) # <- the status_code displayed code on console
+
+                res = self.post2(task_id, UPLOAD_FOLDER)
+
+                if res['code'] == HTTP_400_BAD_REQUEST:
+                    raise ValueError('bad request in post2 query')
+                else:
+                    IMGDIR=os.path.join(RESULT_FOLDER, task_id, "step1")   
+
+                    # do tesseract to recognize the docnumber and doctype
+                    print("CMD=>", TESS_CMD + " " + RESULT_FOLDER +"/" + task_id + "/step1/roi-DocNumber.jpg" + " docnumres -l lancejie_fapiao3")
+                    os.system(TESS_CMD + " " + RESULT_FOLDER + \
+                            "/" + task_id + "/step1/roi-DocNumber.jpg" + " docnumres -l lancejie_fapiao3")
+                    os.system(TESS_CMD + " " + RESULT_FOLDER + \
+                            "/" + task_id + "/step1/roi-DocType.jpg" + " doctyperes -l lancejie_shuipiao2")
+
+                    with open("docnumres.txt") as file:  
+                        docnumres = file.read().rstrip()
+                        print("docnumres=>", docnumres)
+
+                    with open("doctyperes.txt") as file:
+                        doctyperes = file.read().rstrip()
+                        print("doctyperes=>", doctyperes)
+
+                    with open(IMGDIR+"/roi-DocNumber.jpg", "rb") as image:
+                        # base64 encode read data
+                        # result: bytes
+                        docnum_b64encode_bytes = base64.b64encode(image.read())
+                        docnum_b64encode_string= docnum_b64encode_bytes.decode('utf-8')
+
+                    with open(IMGDIR+"/roi-DocType.jpg", "rb") as image:
+                        doctype_b64encode_bytes = base64.b64encode(image.read())
+                        doctype_b64encode_string = doctype_b64encode_bytes.decode('utf-8')
+
+                    conn = MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
+                    with conn:
+                        cursor = conn.cursor()
+                        update_string = "UPDATE records SET doc_type = '{doctype}', doc_num='{docnum}' where task_id = '{taskid}'".format(doctype=doctyperes, docnum=docnumres, taskid=task_id)
+                        cursor.execute(update_string)
+                        conn.commit()
+                        print("update task_id=%s, doc_type=%s, doc_num=%s" % (task_id, doctyperes, docnumres))
+
+                    response_data = {
+                                "task_id": task_id,
+                                "user_id": user_id,
+                                "file_type": file_type,
+                                "docnumber_ocr_result": docnumres,
+                                "doctype_ocr_result": doctyperes,
+                                "docnumber_encode": docnum_b64encode_string,
+                                "doctype_encode": doctype_b64encode_string,
                             }
-                        }
-                return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST)
-                
-            print('Total Row(s) fetched:', cursor.rowcount)
-            for row in dataset:
-                file_type = row[0]
 
-        self.mFileType = file_type
-
-        if task_id and user_id and file_type:
-
-            # attempt to retrieve info from backend directory.
-            # bypass post2 if result exists.
-            sdir = os.path.join(RESULT_FOLDER, task_id)
-            if os.path.exists(sdir) and os.path.exists(os.path.join(sdir, 'response.json')):
-                print("path=>", sdir + "/response.json")
-                with open(os.path.join(sdir ,'response.json'), 'r') as file:
-                    json_string = json.load(file)
                     response_packet = {
-                            "msg": 'Success.',
-                            "ret": HTTP_200_SUCCESS,
-                            "data": json_string,
-                            }
-                    return make_response(jsonify(response_packet), HTTP_200_SUCCESS) # <- the status_code displayed code on console
-
-            res = self.post2(task_id, UPLOAD_FOLDER)
-
-            if res['code'] == HTTP_400_BAD_REQUEST:
-                response_packet = {
-                        "msg": 'Bad request.',
-                        "ret": HTTP_400_BAD_REQUEST,
-                        "data":{
-                            }
-                        }
-                return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST)
-            else:
-                IMGDIR=os.path.join(RESULT_FOLDER, task_id, "step1")   
-
-                # do tesseract to recognize the docnumber and doctype
-                print("CMD=>", TESS_CMD + " " + RESULT_FOLDER +"/" + task_id + "/step1/roi-DocNumber.jpg" + " docnumres -l lancejie_fapiao3")
-                os.system(TESS_CMD + " " + RESULT_FOLDER + \
-                        "/" + task_id + "/step1/roi-DocNumber.jpg" + " docnumres -l lancejie_fapiao3")
-                os.system(TESS_CMD + " " + RESULT_FOLDER + \
-                        "/" + task_id + "/step1/roi-DocType.jpg" + " doctyperes -l lancejie_shuipiao2")
-
-                with open("docnumres.txt") as file:  
-                    docnumres = file.read().rstrip()
-                    print("docnumres=>", docnumres)
-
-                with open("doctyperes.txt") as file:
-                    doctyperes = file.read().rstrip()
-                    print("doctyperes=>", doctyperes)
-
-                with open(IMGDIR+"/roi-DocNumber.jpg", "rb") as image:
-                    # base64 encode read data
-                    # result: bytes
-                    docnum_b64encode_bytes = base64.b64encode(image.read())
-                    docnum_b64encode_string= docnum_b64encode_bytes.decode('utf-8')
-
-                with open(IMGDIR+"/roi-DocType.jpg", "rb") as image:
-                    doctype_b64encode_bytes = base64.b64encode(image.read())
-                    doctype_b64encode_string = doctype_b64encode_bytes.decode('utf-8')
-
-                conn = MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
-                with conn:
-                    cursor = conn.cursor()
-                    update_string = "UPDATE records SET doc_type = '{doctype}', doc_num='{docnum}' where task_id = '{taskid}'".format(doctype=doctyperes, docnum=docnumres, taskid=task_id)
-                    cursor.execute(update_string)
-                    conn.commit()
-                    print("update task_id=%s, doc_type=%s, doc_num=%s" % (task_id, doctyperes, docnumres))
-
-                response_data = {
-                            "task_id": task_id,
-                            "user_id": user_id,
-                            "file_type": file_type,
-                            "docnumber_ocr_result": docnumres,
-                            "doctype_ocr_result": doctyperes,
-                            "docnumber_encode": docnum_b64encode_string,
-                            "doctype_encode": doctype_b64encode_string,
-                        }
-
-                response_packet = {
-                    "msg": 'Access webpage success.',
-                    "ret": HTTP_200_SUCCESS,
-                    "data" : response_data,
-                }
-    
-                # store the parse result
-                with open(os.path.join(sdir, "response.json"), 'w') as outfile:
-                    # now encoding the data into json
-                    # result: string
-                    json_data=json.dumps(response_data)
-                    outfile.write(json_data)
-
-                return make_response(jsonify(response_packet), HTTP_200_SUCCESS) # <- the status_code displayed code on console
-        else:
-            response_packet = {
-                    "msg": 'request error.',
-                    "ret": HTTP_400_BAD_REQUEST,
-                    "data": {
-                        }
+                        "msg": 'Access webpage success.',
+                        "ret": HTTP_200_SUCCESS,
+                        "data" : response_data,
                     }
-            return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) 
+    
+                    # store the parse result
+                    with open(os.path.join(sdir, "response.json"), 'w') as outfile:
+                        # now encoding the data into json
+                        # result: string
+                        json_data=json.dumps(response_data)
+                        outfile.write(json_data)
+
+                    return make_response(jsonify(response_packet), HTTP_200_SUCCESS) # <- the status_code displayed code on console
+            else:
+                raise ValueError("invalid user_id ,task_id or file_type", user_id, task_id, file_type)
+
+        except ValueError as err:
+
+            print(err.args)
+            response_packet = {
+                "msg": 'bad request.',
+                "ret": HTTP_400_BAD_REQUEST,
+                "data": {}
+            }
+            return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
 
     def post2(self, strJobId, strFilePath):
         self.mStrJobID = strJobId
