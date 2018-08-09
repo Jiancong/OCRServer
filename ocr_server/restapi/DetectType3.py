@@ -133,7 +133,7 @@ class DetectType3Api(Resource):
         conn= MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
         with conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT file_type from tasks where task_id =%s", (task_id, ))
+            cursor.execute("SELECT file_type from tasks where task_id =%s and user_id=%s", (task_id, user_id))
             conn.commit()
             dataset = cursor.fetchall()
             # this task_id is not existed.
