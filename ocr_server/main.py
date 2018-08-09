@@ -34,6 +34,10 @@ DEBUG_FILE_NUM=10
 def heath_check():
     return 'OK'
 
+@app.after_request
+def add_header(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 #api.add_resource(DetectType2.DetectType2Api, '/api/detect_invoice')
 #api.add_resource(ExtractImage2.ExtractImage2Api, '/api/extract_image')
