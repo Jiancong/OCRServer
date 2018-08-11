@@ -170,7 +170,7 @@ class FetchRecordsApi(Resource):
                 with conn:
                     cursor = conn.cursor()
 
-                    query_string = "SELECT * FROM records WHERE user_id = '{userid} and task_id= '{taskid}''".format(userid=user_id, taskid=task_id) 
+                    query_string = "SELECT * FROM records WHERE user_id = '{userid}'".format(userid=user_id,)
                     cursor.execute(query_string)
                     conn.commit()
 
