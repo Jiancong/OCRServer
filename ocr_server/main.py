@@ -18,7 +18,7 @@ from shutil import copyfile
 from flask_cors import CORS
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+cors = CORS(app, resources="/api/*", allow_headers='*', origins='*', expose_headers='Authorization')
 
 # MySQL configurations
 DB_HOST='localhost'
