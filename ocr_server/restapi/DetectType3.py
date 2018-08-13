@@ -64,7 +64,8 @@ class GetTaskImageApi(Resource):
 
         self.mFileType = file_type
 
-        filepath = UPLOAD_FOLDER+"/" + task_id + "." + self.mFileType
+        # return thumbnail picture for specific task_id
+        filepath = UPLOAD_FOLDER+"/" + task_id + "_thumbnail." + self.mFileType
         print(filepath)
 
         with open(filepath, "rb") as image:

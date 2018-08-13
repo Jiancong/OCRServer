@@ -14,6 +14,7 @@ import cv2
 import numpy as np
 import logging
 import os
+from PIL import Image
 
 import urllib.parse
 import urllib.request
@@ -42,10 +43,11 @@ class Uploader(Resource):
         return file_ext, status
 
     def send_request(self, url, values):
+
         data = urllib.parse.urlencode(values)
         data = data.encode() # data should be bytes
         req = urllib.request.Request(url, data=data)
-        #response = urllib.request.urlopen(req)
+
         with urllib.request.urlopen(req) as response:
                the_page = response.read()
 
@@ -83,14 +85,13 @@ class Uploader(Resource):
                     os.makedirs(UPLOAD_FOLDER)
 
                 filename = secure_filename(file.filename)
-                #print("filename=>", filename)
                 file.save(os.path.join(UPLOAD_FOLDER, filename))
 
                 filename_with_path = os.path.join(UPLOAD_FOLDER, filename)
-                #print("filename_with_path=>", filename_with_path)
 
                 md5filename = self.md5(filename_with_path)
                 md5filename_with_ext = md5filename + "." + fext
+                md5thumbnail_with_ext = md5filename + "_thumbnail." + fext
 
                 # record this file info in db.
                 url="http://localhost:5000/api/insert/record"
@@ -99,6 +100,7 @@ class Uploader(Resource):
                 self.send_request(url, values)
                 
                 newfilename = os.path.join(UPLOAD_FOLDER, md5filename_with_ext)
+                newfilename_thumbnail = os.path.join(UPLOAD_FOLDER, md5thumbnail_with_ext)
 
                 if os.path.exists(newfilename):
                     response_data = {
@@ -107,7 +109,18 @@ class Uploader(Resource):
                     }
                     return make_response(jsonify(response_data), HTTP_400_BAD_REQUEST)
 
+                print("newfilename=>", newfilename)
                 os.rename(filename_with_path, newfilename)
+
+                try:
+                    baseheight = 320
+                    img = Image.open(newfilename)
+                    hpercent = (baseheight / float(img.size[1]))
+                    wsize = int((float(img.size[0]) * float(hpercent)))
+                    img = img.resize((wsize, baseheight), Image.ANTIALIAS)
+                    img.save(newfilename_thumbnail)
+                except IOError:
+                    print ("cannot create thumbnail for '%s'" % newfilename_thumbnail)
 
                 #if not os.path.exists(PREPROC_FOLDER):
                 #    os.makedirs(PREPROC_FOLDER)
