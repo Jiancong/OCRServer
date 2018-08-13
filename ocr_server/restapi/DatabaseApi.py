@@ -11,6 +11,7 @@ import os
 
 HTTP_202_ACCEPTED = 202
 HTTP_400_BAD_REQUEST = 400
+HTTP_405_NO_DATA = 405
 RESULT_FOLDER = "./tmp"
 
 
@@ -178,7 +179,7 @@ class FetchRecordsApi(Resource):
                     print('Total Row(s) fetched:', cursor.rowcount)
 
                     if cursor.rowcount == 0:
-                        raise ValueError("no record found, ", user_id)
+                        raise IOError("no record found, ", user_id)
 
                     result=[]
 
@@ -212,4 +213,14 @@ class FetchRecordsApi(Resource):
                 "data": {}
             }
             return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
+        except IOError as ioe:
+            print(err.args)
+            response_packet = {
+                "msg": 'bad request.',
+                "ret": HTTP_405_NO_DATA,
+                "data": {}
+            }
+            return make_response(jsonify(response_packet), HTTP_405_NO_DATA) # <- the status_code displayed code on console
+
+                
     
