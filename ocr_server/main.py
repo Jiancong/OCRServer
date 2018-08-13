@@ -15,8 +15,10 @@ import logging
 import argparse
 from datetime import datetime
 from shutil import copyfile
+from flask_cors import CORS
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # MySQL configurations
 DB_HOST='localhost'
