@@ -2,7 +2,7 @@
 <html lang="en">
 <head >
     <meta charset="utf-8">
-    <title>Swiper demo</title>
+    <title>发票验证平台</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
 
     <!-- Link Swiper's CSS -->
@@ -29,6 +29,7 @@
 <!--button id = "getVerify_list" style="margin-left: 5%;margin-top:30px;font-size: 20px" onclick="getTaskList()">
 获取发票列表 </button-->
 </h1>
+
 </div>
 <div class="picture">
     <div class="picture_bottom">
@@ -76,85 +77,85 @@
 <script src="./js/jquery-1.4.2.js" type="text/javascript" charset="utf-8"></script>
 
 <script>
+ $(document).ready(function(){
     var usr_id = 2;
     var tasklist = getTaskList(usr_id);
     var tasklistNum = getTasklistNum(usr_id);
     var taskIdTxt;
-    var swiper = new Swiper('.swiper-container', {
-    slidesPerView:5,
-    centeredSlides: true,
-    spaceBetween: tasklistNum,
-    pagination: {
-        el: '.swiper-pagination',
-        type: 'fraction',
-    },
-    navigation: {
-        nextEl: '.swiper-button-next',
-        prevEl: '.swiper-button-prev',
-    },
-    virtual: {
-        slides: (function () {
-            var slides = [];
-            for (var i = 0; i<tasklistNum; i+=1) {
-                slides.push("Slide "+(tasklist[i].slice(0,5)));
-            }
-        return slides;
-        }()),
-    },
-    on:{
-        click:function () {
-            if (this.clickedIndex == undefined)
-            {
-                console.log("index underfined")
-            }
-            else
-            {
-                var task_ID = tasklist[this.clickedIndex];
-                taskIdTxt = task_ID;
-                // alert(task_ID);
-                showNumAndID(usr_id,task_ID);
-            }
-        }
+    onload();
+
+    function onload(){
+
+        var swiper = new Swiper('.swiper-container', {
+                slidesPerView:5,
+                centeredSlides: true,
+                spaceBetween: tasklistNum,
+                pagination: {
+                    el: '.swiper-pagination',
+                    type: 'fraction',
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                virtual: {
+                    slides: (function () {
+                        var slides = [];
+                        for (var i = 0; i<tasklistNum; i+=1) {
+                            //slides.push("Slide "+(tasklist[i].slice(0,5)));
+                            num = i + 1
+                            slides.push(" 发票 " + num);
+                        }
+                    return slides;
+                    }()),
+                },
+                on:{
+                    click:function () {
+                        if (this.clickedIndex == undefined)
+                        {
+                            console.log("index underfined")
+                        }
+                        else
+                        {
+                            var task_ID = tasklist[this.clickedIndex];
+                            taskIdTxt = task_ID;
+                            // alert(task_ID);
+                            showNumAndID(usr_id,task_ID);
+                        }
+                    }
+                }
+
+        });
+    }
+
+    $("#uploadInvoiceInfo").click(function() {
+        var newInvoiceNum =  document.getElementById("textInvoiceNum").value;
+        var newInvoiceID =  document.getElementById("textInvoiceID").value;
+        //alert(newInvoiceNum + "   " + newInvoiceID);
+
+        strUrl = "http://180ly66419.iok.la:5000/api/insert/result?1=1&user_id=" + usr_id; // "http://10.26.7.164:5000/api/insert/result?1=1&user_id=1";
+		strJson = JSON.stringify(GetJsonData(usr_id, taskIdTxt, newInvoiceNum, newInvoiceID));
+
+		$.post(strUrl, strJson,
+			function(data,status){
+                var msg = (status == "success") ?"成功" : "失败";
+				alert("修改" + msg);
+            }, "json"
+        );
+
+    });
+
+    function GetJsonData(usr_id, task_id,docnumber_ocr_result,doctype_ocr_result ) {
+        var json = {
+            "docnumber_ocr_result": docnumber_ocr_result,
+            "doctype_ocr_result":doctype_ocr_result,
+            "task_id": task_id,
+            "user_id": usr_id
+        };
+        return json;
     }
 
 });
-
-$("#uploadInvoiceInfo").click(function() {
-    var newInvoiceNum = document.getElementById("textInvoiceNum").value
-    var newInvoiceID = document.getElementById("textInvoiceID").value
-    alert(newInvoiceNum + "   " + newInvoiceID);
-
-    $.ajax({
-        type: "POST",
-        url: "http://180ly66419.iok.la:5000/api/insert/result?1=1&user_id=" + usr_id,
-        contentType: "text/html; charset=utf-8",
-        data: {
-            data: JSON.stringify(GetJsonData(usr_id, taskIdTxt, newInvoiceNum, newInvoiceID))
-        },
-        dataType: "json",
-        success: function (message) {
-            alert(message)
-            if (message > 0) {
-                alert("修改成功");
-            }
-        },
-        error: function (message) {
-            alert("修改失败！");
-        }
-    });
-});
-
-
-function GetJsonData(usr_id, task_id,docnumber_ocr_result,doctype_ocr_result ) {
-    var json = {
-        "docnumber_ocr_result": docnumber_ocr_result,
-        "doctype_ocr_result":doctype_ocr_result,
-        "task_id": task_id,
-        "user_id": usr_id
-    };
-    return json;
-}
-
 </script>
 </body>
 </html>
