@@ -61,30 +61,25 @@
 <script src="/static/js/bootstrap-table.js "></script>
 <script src="/static/js/bootstrap-table-export.js "></script>
 <script>
-
+var user_id = 2;
     function getAllInvoceInfo() {
 
-        //var tasklist = getTaskList(user_id);
-        var tasklist = ["246gee","234723hey","w4r32","234723hey","w4r32","234723hey","w4r32","234723hey","w4r32","234723hey","w4r32","234723hey","w4r32","234723hey","w4r32"];
+        var tasklist = getTaskList(user_id);
         var invoiceInfoList = [];
         for (i = 0; i<tasklist.length;i++) {
             var invoiceInfo = {};
             invoiceInfo["taskId"] = tasklist[i];
-            invoiceInfo["invoiceTextID"] = 12345678900+i ;//getInvocieInfo(user_id,  taskList[i], "textInvoiceID");
-            invoiceInfo["invoiceTextNum"] =1234567800+i; // getInvocieInfo(user_id,  taskList[i], "textInvoiceNum");
+            invoiceInfo["invoiceTextID"] = getInvocieInfo(user_id,  tasklist[i], "textInvoiceID");
+            invoiceInfo["invoiceTextNum"] = getInvocieInfo(user_id,  tasklist[i], "textInvoiceNum");
             invoiceInfoList.push(invoiceInfo)
          }
          var jsonString = JSON.stringify(invoiceInfoList);
          var epc=eval("("+jsonString+")");
-         //alert(epc[2].taskId + typeof (epc));
          return epc
     }
     $(function(){
     function addRows(taskId){
         jsonlist = getAllInvoceInfo();
-        //alert(jsonlist[2].taskId +"---"+ jsonlist.length);
-
-        //var i = parseInt(mytable.rows.length);
         for (i =0;i<jsonlist.length;i++){
             var newTr = mytable.insertRow();
 
@@ -150,16 +145,8 @@
     function test(){
         alert("test")
         var data = [];
-         /*
-        a = $("#mytable").bootstrapTable('getSelections');
-        alert(a.length)
-        for (var i = 0; i < a.length; i++) {//循环读取选中行数据
-            var b = a[i].mid;//获取选择行的值
-            alert(b)
-        }
-        */
-        $tb = $('table tbody tr');
-        //$("#mytable").find(":checkbox:checked").each(function(){
+        
+	$tb = $('table tbody tr');
         $tb.find(":checkbox:checked").each(function(){
             var val = $(this).parents("tr").text();
             data.push(val);
