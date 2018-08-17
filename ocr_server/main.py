@@ -36,6 +36,10 @@ DEBUG_FILE_NUM=10
 def heath_check():
     return 'OK'
 
+@app.route('/')
+def index():
+      return app.send_static_file('index.html')
+
 @app.after_request
 def add_header(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
