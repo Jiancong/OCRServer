@@ -10,6 +10,7 @@ import hashlib
 from flask_restful import Api
 from restapi import ExtractImage2, Ocr2, CompressImage, DetectType2, DetectType3, recognize
 from restapi.Uploader import Uploader
+from restapi.FetchBaiduApi import FetchBaiduApi
 from restapi.DatabaseApi import FetchRecordsApi, InsertRecordApi, InsertResultApi
 import logging
 import argparse
@@ -60,6 +61,9 @@ api.add_resource(InsertRecordApi, '/api/insert/record',
         resource_class_kwargs={'DB_HOST': DB_HOST, 'DB_USER': DB_USER, 'DB_PASSWD': DB_PASSWD, 'DB_NAME': DB_NAME})
 
 api.add_resource(InsertResultApi, '/api/insert/result', 
+        resource_class_kwargs={'DB_HOST': DB_HOST, 'DB_USER': DB_USER, 'DB_PASSWD': DB_PASSWD, 'DB_NAME': DB_NAME})
+
+api.add_resource(FetchBaiduApi, '/api/baidu/result',
         resource_class_kwargs={'DB_HOST': DB_HOST, 'DB_USER': DB_USER, 'DB_PASSWD': DB_PASSWD, 'DB_NAME': DB_NAME})
 
 # construct the argument parse and parse the arguments
