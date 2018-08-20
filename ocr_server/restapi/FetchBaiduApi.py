@@ -132,7 +132,7 @@ class FetchBaiduApi(Resource):
                     print("strResult=>", strResult)
                     # result is returned back.
                     #strResult=> {'log_id': 782009054849159729, 'words_result': {'TotalAmount': '94339.62', 'SellerRegisterNum': '91110105560400782H', 'SellerAddress': '北京市朝阳区立清路6号院1号楼2单元702室53382829', 'CheckCode': '', 'CommodityTax': [{'row': '1', 'word': '5660.38'}], 'AmountInWords': '壹拾万圆整', 'InvoiceType': '专用发票', 'PurchaserRegisterNum': '91350105077403473T', 'InvoiceNum': '20103389', 'Payee': '', 'InvoiceCode': '1100162130', 'Password': '64*-3*570>/2365<92/4-24516/28>94<2>/0538651-35516+827034*1-179/66142>17310/3>>>1807416<0>/7<*76/46>0-726438', 'CommodityName': [{'row': '1', 'word': '信息服务费'}], 'Remarks': '如技术有', 'PurchaserBank': '中国民生银行股份有限公司福州金山36369881', 'NoteDrawer': '管理7a', 'CommodityAmount': [{'row': '1', 'word': '94339.'}], 'PurchaserName': '福州靠谱网络有限公司', 'TotalTax': '5660.38', 'CommodityNum': [{'row': '1', 'word': ''}], 'CommodityTaxRate': [{'row': '1', 'word': '6%'}], 'PurchaserAddress': '福州市马尾区快安路8号5-2K楼房0591-87867769', 'AmountInFiguers': '100000.00', 'SellerBank': '工商银行北京南中园0200096000', 'CommodityUnit': [{'row': '1', 'word': ''}], 'CommodityType': [{'row': '1', 'word': ''}], 'SellerName': '北京久如技术有限公司', 'InvoiceDate': '2017年06月21日', 'CommodityPrice': [{'row': '1', 'word': '94339.622642'}], 'Checker': ''}, 'words_result_num': 30}
-                    strResult['words_result']['']
+                    #strResult['words_result']['']
                         
                         
                     

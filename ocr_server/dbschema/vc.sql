@@ -24,6 +24,32 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/ `ocrserver` /*!40100 DEFAULT CHARACTER 
 USE `ocrserver`;
 
 --
+-- Table structure for table `baiduinfo`
+--
+
+DROP TABLE IF EXISTS `baiduinfo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `baiduinfo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `api_key` varchar(255) DEFAULT NULL,
+  `secret_key` varchar(255) DEFAULT NULL,
+  `access_token` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `baiduinfo`
+--
+
+LOCK TABLES `baiduinfo` WRITE;
+/*!40000 ALTER TABLE `baiduinfo` DISABLE KEYS */;
+INSERT INTO `baiduinfo` VALUES (1,'Xdp8WvFlZfG7eGQ54vlTUOc3','2AEFzhIp4TF8c3xzLpWOqqFE1p25K22f','24.2f79b97ea402573e677bf1c726ff06ff.2592000.1537346507.282335-11206246');
+/*!40000 ALTER TABLE `baiduinfo` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `records`
 --
 
@@ -34,14 +60,14 @@ CREATE TABLE `records` (
   `record_id` int(11) NOT NULL AUTO_INCREMENT,
   `task_id` varchar(256) DEFAULT NULL,
   `user_id` int(11) NOT NULL,
-  `doc_type` varchar(255) DEFAULT NULL,
-  `doc_num` varchar(255) DEFAULT NULL,
+  `InvoiceCode` varchar(255) DEFAULT NULL,
+  `InvoiceNum` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`record_id`),
   UNIQUE KEY `task_id` (`task_id`,`user_id`),
   KEY `fk_user_id` (`user_id`),
   CONSTRAINT `fk_task_id` FOREIGN KEY (`task_id`) REFERENCES `tasks` (`task_id`),
   CONSTRAINT `records_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -50,7 +76,7 @@ CREATE TABLE `records` (
 
 LOCK TABLES `records` WRITE;
 /*!40000 ALTER TABLE `records` DISABLE KEYS */;
-INSERT INTO `records` VALUES (10,'b346a539dec05ed0bade6dd015e96933',1,'3','112'),(12,'7baadb3c1e5890ad1a3054b5165ecbd6',1,'356','11234');
+INSERT INTO `records` VALUES (10,'b346a539dec05ed0bade6dd015e96933',1,'3','112'),(12,'7baadb3c1e5890ad1a3054b5165ecbd6',1,'356','11234'),(14,'ddc2e65c8525e42b320c6c80f0ef3bc5',1,'356','11234'),(16,'20f20f7a0271852acb543a63cbdbd2e6',1,NULL,NULL);
 /*!40000 ALTER TABLE `records` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -75,7 +101,7 @@ CREATE TABLE `tasks` (
 
 LOCK TABLES `tasks` WRITE;
 /*!40000 ALTER TABLE `tasks` DISABLE KEYS */;
-INSERT INTO `tasks` VALUES ('7baadb3c1e5890ad1a3054b5165ecbd6','jpg'),('b346a539dec05ed0bade6dd015e96933','jpg');
+INSERT INTO `tasks` VALUES ('20f20f7a0271852acb543a63cbdbd2e6','jpg'),('7baadb3c1e5890ad1a3054b5165ecbd6','jpg'),('b346a539dec05ed0bade6dd015e96933','jpg'),('ddc2e65c8525e42b320c6c80f0ef3bc5','jpg');
 /*!40000 ALTER TABLE `tasks` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -114,4 +140,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-08 13:45:07
+-- Dump completed on 2018-08-20 17:59:19
