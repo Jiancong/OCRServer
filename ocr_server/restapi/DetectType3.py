@@ -215,10 +215,10 @@ class DetectType3Api(Resource):
                                 "task_id": task_id,
                                 "user_id": user_id,
                                 "file_type": file_type,
-                                "InvoiceNum": docnumres,
-                                "InvoiceCode": doctyperes,
-                                "InvoiceNum_encode": docnum_b64encode_string,
-                                "InvoiceCode_encode": doctype_b64encode_string,
+                                "invoice_num": docnumres,
+                                "invoice_code": doctyperes,
+                                "invoice_num_encode": docnum_b64encode_string,
+                                "invoice_code_encode": doctype_b64encode_string,
                             }
 
                     response_packet = {

@@ -27,8 +27,8 @@ class InsertResultApi(Resource):
             json_data = request.get_json(force=True)
             task_id = json_data['task_id']
             user_id = json_data['user_id']
-            docnum = json_data['InvoiceNum']
-            doctype = json_data['InvoiceCode']
+            docnum = json_data['invoice_num']
+            doctype = json_data['invoice_code']
 
             if user_id and task_id:
                 conn = MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
@@ -61,8 +61,8 @@ class InsertResultApi(Resource):
                                 #print('json_string.type=>', type(json_string))
                                 #print("old docnum===>", json_string['docnumber_ocr_result'])
                                 #print("old doctype===>", json_string['doctype_ocr_result'])
-                                json_string['InvoiceNum'] = docnum
-                                json_string['InvoiceCode'] = doctype
+                                json_string['invoice_num'] = docnum
+                                json_string['invoice_code'] = doctype
                                 #print("new docnum===>", json_string['docnumber_ocr_result'])
                                 #print("new doctype===>", json_string['doctype_ocr_result'])
                                 file.seek(0)
