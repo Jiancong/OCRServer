@@ -28,6 +28,7 @@
             </h2>
             <button onclick="getAllInvoceInfo()"> 获取json</button>
              <button onclick="addRows()"> add row</button>
+            <button onclick="onbtnclickExport()">导出表格</button>
             <div class="panel-body">
                 <div class="list-op" id="list_op">
                     <button type="button" class="btn btn-default btn-sm" onclick="test()">
@@ -60,6 +61,7 @@
 <script src="/static/js/bootstrap.min.js "></script>
 <script src="/static/js/bootstrap-table.js "></script>
 <script src="/static/js/bootstrap-table-export.js "></script>
+<script src="/static/js/tableExport2.js"></script>
 <script>
 var user_id = 2;
     function getAllInvoceInfo() {
@@ -155,6 +157,12 @@ var user_id = 2;
 
     }
 
+    function onbtnclickExport(){
+        //alert("xxx");
+        //alert(tablesToExcel2);
+        tablesToExcel(['mytable'], ['invoice'], 'invoice.xls', 'Excel');
+        //tablesToExcel2();
+    }
     
 </script>
 </html>
