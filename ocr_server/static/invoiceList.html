@@ -135,6 +135,7 @@
     }
     addRows();
     initTableCheckbox();
+    hideNoFondTables();
     });
 
    
@@ -142,17 +143,28 @@
         exportDataType: "basic",              //basic', 'all', 'selected'.
         exportTypes:['excel','xlsx'],           
         exportOptions: {                 
-        fileName: '',             
-        worksheetName: 'Sheet1',          
-        tableName: '',
-        excelstyles: ['background-color', 'color', 'font-size', 'font-weight'],       
-    }
+            fileName: '',             
+            worksheetName: 'Sheet1',          
+            tableName: '',
+            excelstyles: ['background-color', 'color', 'font-size', 'font-weight'],       
+        },
+        formatLoadingMessage: function(){
+            return " ";  // 隐藏加载状态
+        },
+       
     });
     function onbtnclickExport(){
         //alert(tablesToExcel2);
         tablesToExcel(['mytable'], ['invoice'], 'invoice.xls', 'Excel');
         //tablesToExcel2();
     }
-    
+
+    function hideNoFondTables(){
+       noFondClass = document.getElementsByClassName("delete class no-records-found");
+       if (noFondClass) {
+           //alert ("delete class no-records-found ");
+           $(".no-records-found").hide();
+       }
+    }    
 </script>
 </html>
