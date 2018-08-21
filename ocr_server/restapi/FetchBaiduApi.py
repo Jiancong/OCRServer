@@ -18,6 +18,8 @@ import urllib.request
 import urllib.parse
 
 IMAGE_FOLDER="./images"
+RESULT_FOLDER="./tmp"
+HTTP_200_SUCCESS=200
 HTTP_400_BAD_REQUEST = 400
 
 class FetchBaiduApi(Resource):
@@ -82,6 +84,21 @@ class FetchBaiduApi(Resource):
             file_type = args['file_type']
 
             if user_id and task_id:
+                sdir = os.path.join(RESULT_FOLDER, task_id)
+                baidu_response_file = os.path.join(sdir, 'baidu_response.json')
+                if os.path.exists(sdir):
+                    if os.path.exists(baidu_response_file):
+                        with open (baidu_response_file, 'r') as file:
+                            json_string = json.load(file)
+                            response_packet = {
+                                    "msg": 'Success.',
+                                    "ret": HTTP_200_SUCCESS,
+                                    "data": json_string,
+                                    }
+                            return make_response(jsonify(response_packet), HTTP_200_SUCCESS) # <- the status_code displayed code on console
+                else :
+                    raise ValueError("error in create folder:", sdir)
+
                 imagename = task_id + "." + file_type
                 filePath = os.path.join(IMAGE_FOLDER, imagename)
 
@@ -110,10 +127,6 @@ class FetchBaiduApi(Resource):
                     options["access_token"] = access_token
                     strResult = self.baidu_api(self.client, self.vaturl, image, options)
 
-                    #print("strResult.type=>", type(strResult))
-                    #print("strResult=>", strResult)
-                    #print("=" * 20)
-
                     if 'error_code' in strResult:
                         # access token expired.
                         if strResult['error_code'] == 111 or strResult['error_code'] == 110:
@@ -129,13 +142,23 @@ class FetchBaiduApi(Resource):
                             cursor.execute(query_string)
                             conn.commit()
                             strResult = self.baidu_api(self.client, self.vaturl, image, options)
-                    print("strResult=>", strResult)
+#                    print("strResult=>", strResult)
                     # result is returned back.
                     #strResult=> {'log_id': 782009054849159729, 'words_result': {'TotalAmount': '94339.62', 'SellerRegisterNum': '91110105560400782H', 'SellerAddress': '北京市朝阳区立清路6号院1号楼2单元702室53382829', 'CheckCode': '', 'CommodityTax': [{'row': '1', 'word': '5660.38'}], 'AmountInWords': '壹拾万圆整', 'InvoiceType': '专用发票', 'PurchaserRegisterNum': '91350105077403473T', 'InvoiceNum': '20103389', 'Payee': '', 'InvoiceCode': '1100162130', 'Password': '64*-3*570>/2365<92/4-24516/28>94<2>/0538651-35516+827034*1-179/66142>17310/3>>>1807416<0>/7<*76/46>0-726438', 'CommodityName': [{'row': '1', 'word': '信息服务费'}], 'Remarks': '如技术有', 'PurchaserBank': '中国民生银行股份有限公司福州金山36369881', 'NoteDrawer': '管理7a', 'CommodityAmount': [{'row': '1', 'word': '94339.'}], 'PurchaserName': '福州靠谱网络有限公司', 'TotalTax': '5660.38', 'CommodityNum': [{'row': '1', 'word': ''}], 'CommodityTaxRate': [{'row': '1', 'word': '6%'}], 'PurchaserAddress': '福州市马尾区快安路8号5-2K楼房0591-87867769', 'AmountInFiguers': '100000.00', 'SellerBank': '工商银行北京南中园0200096000', 'CommodityUnit': [{'row': '1', 'word': ''}], 'CommodityType': [{'row': '1', 'word': ''}], 'SellerName': '北京久如技术有限公司', 'InvoiceDate': '2017年06月21日', 'CommodityPrice': [{'row': '1', 'word': '94339.622642'}], 'Checker': ''}, 'words_result_num': 30}
-                    #strResult['words_result']['']
-                        
-                        
-                    
+                    print("strResult index=>", strResult['words_result']['TotalAmount'])
+                    response_data = strResult['words_result']    
+                    response_packet = {
+                        "msg": 'Access webpage success.',
+                        "ret": HTTP_200_SUCCESS,
+                        "data" : response_data,
+                    }
+                    print("baidu file=>", baidu_response_file)
+
+                    with open(baidu_response_file, 'w') as outfile:
+                        json_data=json.dumps(response_data)
+                        outfile.write(json_data)
+
+                    return make_response(jsonify(response_packet), HTTP_200_SUCCESS) # <- the status_code displayed code on console
 
             else:
                 raise ValueError("invalid task_id and user_id info:", task_id , user_id )
