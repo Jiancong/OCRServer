@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <title>表格</title>
+
+    <title>发票列表</title>
     <meta name="keywords" content="表格">
-    <meta name="description" content="这真的是一个表格" />
+
     <meta name="HandheldFriendly" content="True" />
     <link rel="shortcut icon" href="img/favicon.ico">
+    <!-- Bootstrap3.3.5 CSS -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -26,14 +26,9 @@
             <h2 class="panel-heading" style="margin-left: 45%; color: #000066; height:60px">
                 发票列表
             </h2>
-            <button onclick="getAllInvoceInfo()"> 获取json</button>
-             <button onclick="addRows()"> add row</button>
             <button onclick="onbtnclickExport()">导出表格</button>
             <div class="panel-body">
                 <div class="list-op" id="list_op">
-                    <button type="button" class="btn btn-default btn-sm" onclick="test()">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Save
-                    </button>
 
                 </div>
             </div>
@@ -43,7 +38,6 @@
                         <th>发票编号</th>
                         <th>发票代码</th>
                         <th>发票号码</th>
-
                     </tr>
                 </thead>
                 <tbody id = "mytbody">
@@ -54,7 +48,6 @@
         </div><!-- end of panel -->
     </div>
 </body>
-		<!-- jQuery1.11.3 (necessary for Bo otstrap's JavaScript plugins) -->
 <script src="/static/js/jquery-1.11.3.min.js "></script>
 <script src="/static/js/invoiceVerify.js" type="text/javascript" charset="utf-8"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
@@ -63,9 +56,8 @@
 <script src="/static/js/bootstrap-table-export.js "></script>
 <script src="/static/js/tableExport2.js"></script>
 <script>
-var user_id = 2;
+	var user_id = 2;
     function getAllInvoceInfo() {
-
         var tasklist = getTaskList(user_id);
         var invoiceInfoList = [];
         for (i = 0; i<tasklist.length;i++) {
@@ -80,8 +72,9 @@ var user_id = 2;
          return epc
     }
     $(function(){
-    function addRows(taskId){
+    function addRows(){
         jsonlist = getAllInvoceInfo();
+        var i = parseInt(mytable.rows.length);
         for (i =0;i<jsonlist.length;i++){
             var newTr = mytable.insertRow();
 
@@ -140,25 +133,22 @@ var user_id = 2;
             $(this).find('input').click();
         });
     }
-    addRows("3253h328");
+    addRows();
     initTableCheckbox();
     });
 
-    function test(){
-        alert("test")
-        var data = [];
-        
-	$tb = $('table tbody tr');
-        $tb.find(":checkbox:checked").each(function(){
-            var val = $(this).parents("tr").text();
-            data.push(val);
-        });
-        alert(data[0])
-
+   
+    $("#mytable").bootstrapTable({
+        exportDataType: "basic",              //basic', 'all', 'selected'.
+        exportTypes:['excel','xlsx'],           
+        exportOptions: {                 
+        fileName: '',             
+        worksheetName: 'Sheet1',          
+        tableName: '',
+        excelstyles: ['background-color', 'color', 'font-size', 'font-weight'],       
     }
-
+    });
     function onbtnclickExport(){
-        //alert("xxx");
         //alert(tablesToExcel2);
         tablesToExcel(['mytable'], ['invoice'], 'invoice.xls', 'Excel');
         //tablesToExcel2();
