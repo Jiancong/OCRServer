@@ -21,14 +21,14 @@ class InsertResultApi(Resource):
         self.db_user = DB_USER
         self.db_passwd = DB_PASSWD
         self.db_name = DB_NAME
+        self.ocr_type = "baidu"
 
     def post(self):
         try:
             json_data = request.get_json(force=True)
             task_id = json_data['task_id'].strip()
             user_id = json_data['user_id'].strip()
-            docnum = json_data['InvoiceNum'].strip()
-            doctype = json_data['InvoiceCode'].strip()
+            words_result = json_data['words_result']
 
             if user_id and task_id:
 
@@ -39,8 +39,7 @@ class InsertResultApi(Resource):
                 if os.path.exists(response_file_path):
                     with open(response_file_path, 'r+') as file:
                         json_string = json.loads(file.read())
-                        json_string['InvoiceNum'] = docnum
-                        json_string['InvoiceCode'] = doctype
+                        json_string['words_result'] = json_data['words_result'] 
                         file.seek(0)
                         file.write(json.dumps(json_string))
                         file.truncate()

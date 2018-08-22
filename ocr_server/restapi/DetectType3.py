@@ -8,13 +8,16 @@ import numpy as np
 import json, codecs
 from restapi import tools
 import logging
-from restapi import recognize
+from restapi import recognize, FetchBaiduApi
 import datetime
 import os
 import base64
 
 import MySQLdb
 import gc
+
+import urllib.request
+import urllib.parse
 
 HTTP_400_BAD_REQUEST = 400
 HTTP_201_CREATED = 201
@@ -92,6 +95,7 @@ class DetectType3Api(Resource):
         self.db_user = DB_USER
         self.db_passwd = DB_PASSWD
         self.db_name = DB_NAME
+        self.ocr_type = 'baidu'
     '''
     'ori_image': {
         # ori_w, ori_h is the origin image without any change (uploaded by wechat)
@@ -129,8 +133,6 @@ class DetectType3Api(Resource):
             task_id = args['task_id']
             user_id = args['user_id']
 
-            print("task_id=>", task_id, ",user_id=>", user_id)
-
             # retrieve file type from task_id
             conn= MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
             with conn:
@@ -160,8 +162,9 @@ class DetectType3Api(Resource):
                 # attempt to retrieve info from backend directory.
                 # bypass post2 if result exists.
                 sdir = os.path.join(RESULT_FOLDER, task_id)
-                if os.path.exists(sdir) and os.path.exists(os.path.join(sdir, 'response.json')):
-                    with open(os.path.join(sdir ,'response.json'), 'r') as file:
+                response_file = os.path.join(sdir, 'response.json')
+                if os.path.exists(sdir) and os.path.exists(response_file):
+                    with open(response_file, 'r') as file:
                         json_string = json.load(file)
                         response_packet = {
                                 "msg": 'Success.',
@@ -179,18 +182,25 @@ class DetectType3Api(Resource):
 
                     # do tesseract to recognize the docnumber and doctype
                     print("CMD=>", TESS_CMD + " " + RESULT_FOLDER +"/" + task_id + "/step1/roi-DocNumber.jpg" + " docnumres -l lancejie_fapiao3")
-                    os.system(TESS_CMD + " " + RESULT_FOLDER + \
-                            "/" + task_id + "/step1/roi-DocNumber.jpg" + " docnumres -l lancejie_fapiao3")
-                    os.system(TESS_CMD + " " + RESULT_FOLDER + \
-                            "/" + task_id + "/step1/roi-DocType.jpg" + " doctyperes -l lancejie_shuipiao2")
+                    if self.ocr_type == 'google':
+                        os.system(TESS_CMD + " " + RESULT_FOLDER + \
+                                "/" + task_id + "/step1/roi-DocNumber.jpg" + " docnumres -l lancejie_fapiao3")
+                        os.system(TESS_CMD + " " + RESULT_FOLDER + \
+                                "/" + task_id + "/step1/roi-DocType.jpg" + " doctyperes -l lancejie_shuipiao2")
 
-                    with open("docnumres.txt") as file:  
-                        docnumres = file.read().rstrip()
-                        print("docnumres=>", docnumres)
+                        with open("docnumres.txt") as file:  
+                            docnumres = file.read().rstrip()
+                            print("docnumres=>", docnumres)
 
-                    with open("doctyperes.txt") as file:
-                        doctyperes = file.read().rstrip()
-                        print("doctyperes=>", doctyperes)
+                        with open("doctyperes.txt") as file:
+                            doctyperes = file.read().rstrip()
+                            print("doctyperes=>", doctyperes)
+                    else:
+                        if self.ocr_type == 'baidu':
+                            fba=FetchBaiduApi.FetchBaiduApi(self.db_host, self.db_user, self.db_passwd, self.db_name)
+                            print("user_id", )
+                            responseBaiduData = fba.getInternal(user_id, task_id, file_type)
+                            print("response=>", responseBaiduData)
 
                     with open(IMGDIR+"/roi-DocNumber.jpg", "rb") as image:
                         # base64 encode read data
@@ -202,22 +212,29 @@ class DetectType3Api(Resource):
                         doctype_b64encode_bytes = base64.b64encode(image.read())
                         doctype_b64encode_string = doctype_b64encode_bytes.decode('utf-8')
 
-                    response_data = {
+                    if self.ocr_type == 'google':
+                        response_data = {
                                 "task_id": task_id,
                                 "user_id": user_id,
                                 "file_type": file_type,
-                                "InvoiceNum": docnumres,
-                                "InvoiceCode": doctyperes,
+                                "words_result": {
+                                    "InvoiceNum": docnumres,
+                                    "InvoiceCode": doctyperes,
+                                },
                                 "InvoiceNumEncode": docnum_b64encode_string,
                                 "InvoiceCodeEncode": doctype_b64encode_string,
                             }
+                    else: 
+                        if self.ocr_type == 'baidu':
+                            response_data = {
+                                "task_id": task_id,
+                                "user_id": user_id,
+                                "file_type": file_type,
+                                "InvoiceNumEncode": docnum_b64encode_string,
+                                "InvoiceCodeEncode": doctype_b64encode_string,
+                                "words_result": responseBaiduData,
+                            }
 
-                    response_packet = {
-                        "msg": 'Access webpage success.',
-                        "ret": HTTP_200_SUCCESS,
-                        "data" : response_data,
-                    }
-    
                     # store the parse result
                     with open(os.path.join(sdir, "response.json"), 'w') as outfile:
                         # now encoding the data into json
@@ -225,6 +242,12 @@ class DetectType3Api(Resource):
                         json_data=json.dumps(response_data)
                         outfile.write(json_data)
 
+                    response_packet = {
+                        "msg": 'Access webpage success.',
+                        "ret": HTTP_200_SUCCESS,
+                        "data" : response_data,
+                    }
+    
                     return make_response(jsonify(response_packet), HTTP_200_SUCCESS) # <- the status_code displayed code on console
             else:
                 raise ValueError("invalid user_id ,task_id or file_type", user_id, task_id, file_type)

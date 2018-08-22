@@ -63,8 +63,6 @@ api.add_resource(InsertRecordApi, '/api/insert/record',
 api.add_resource(InsertResultApi, '/api/insert/result', 
         resource_class_kwargs={'DB_HOST': DB_HOST, 'DB_USER': DB_USER, 'DB_PASSWD': DB_PASSWD, 'DB_NAME': DB_NAME})
 
-api.add_resource(FetchBaiduApi, '/api/baidu/result',
-        resource_class_kwargs={'DB_HOST': DB_HOST, 'DB_USER': DB_USER, 'DB_PASSWD': DB_PASSWD, 'DB_NAME': DB_NAME})
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
