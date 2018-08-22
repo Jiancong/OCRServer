@@ -3,10 +3,7 @@ function getInvocieInfo(user_id, taskid, textInvocetype) {
     $.ajax({
         type: 'GET',
         dataType: 'json', // 数据类型配置成jsonp
-        //jsonp : "callback", //配置jsonp随机码标签,在服务器代码部分需要用到他来拼接一个json的js对象
-        //url : 'https://aip.baidubce.com/rest/2.0/ocr/v1/general', //http://10.26.6.222:5000/api/detect_in', //服务路径
         url: 'http://180ly66419.iok.la:5000/api/detect_in?1=1&user_id=' + user_id + '&task_id=' + taskid,
-        // url: 'test.json',
         async: false,
         timeout: 5,
         data: {
@@ -17,8 +14,8 @@ function getInvocieInfo(user_id, taskid, textInvocetype) {
         success: function (response) {
             responseData = JSON.stringify(response);
             var obj = eval('(' + responseData + ')');
-            invoiceID = obj.data['invoice_code'];
-            invoiceNo = obj.data['invoice_num'];
+            invoiceID = obj.data["words_result"]["InvoiceCode"];
+            invoiceNo = obj.data["words_result"]["InvoiceNum"];
 
         },
         error: function () {
@@ -38,7 +35,6 @@ function getTaskList(user_id) {
     $.ajax({
         type: 'GET',
         dataType: 'json', // 数据类型配置成jsonp
-        //jsonp : "callback", //配置jsonp随机码标签,在服务器代码部分需要用到他来拼接一个json的js对象
         url: "http://180ly66419.iok.la:5000/api/fetch/records?user_id=" + user_id,
         async: false,
         timeout: 5,
@@ -55,12 +51,9 @@ function getTaskList(user_id) {
         },
 
         success: function (response) {
-            //alert("enter success!");
 
             responseData = JSON.stringify(response);
             var obj = eval('(' + responseData + ')');
-            //alert(typeof(obj))
-            //alert( obj.data["task_id_list"]);
             var tastListStr = obj.data["task_id_list"];
             var tasklistObj = tastListStr.slice(1, -1).split(",");
             for (let i in tasklistObj) {
@@ -71,14 +64,12 @@ function getTaskList(user_id) {
                     taskList.push(tasklistObj[i].slice(2, -1));
                 }
             }
-            //alert(taskList +typeof (taskList)+ taskList[4] + taskList.length);
         },
 
         error: function () {
             alert('服务器异常，获取发票列表失败！' + response.status);
         }
     });
-    //alert(taskList);
     return taskList;
 }
 
@@ -87,7 +78,6 @@ function getInvoiceBase64(user_id, taskId, invocetype) {
     $.ajax({
         type: 'GET',
         dataType: 'json', // 数据类型配置成jsonp
-        //url: 'http://180ly66419.iok.la:5000/api/detect_in?1=1&user_id=2&task_id=a999c07fe9b703be05286029e5a2dd0e', //服务路径
         url: "http://180ly66419.iok.la:5000/api/detect_in?1=1&user_id=" + user_id + "&task_id=" + taskId, //服务路径
         async: false,
         timeout: 5,
@@ -101,10 +91,8 @@ function getInvoiceBase64(user_id, taskId, invocetype) {
         success: function (response) {
             responseData = JSON.stringify(response);
             var obj = eval('(' + responseData + ')');
-            imgNumBase64 = obj.data["invoice_num_encode"];
-            imgIDBase64 = obj.data["invoice_code_encode"];
-
-            //alert(imgSrc);
+            imgNumBase64 = obj.data["InvoiceNumEncode"];
+            imgIDBase64 = obj.data["InvoiceCodeEncode"];
 
         },
         error: function () {

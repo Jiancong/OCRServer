@@ -138,7 +138,7 @@
         var newInvoiceID =  document.getElementById("textInvoiceID").value;
         //alert(newInvoiceNum + "   " + newInvoiceID);
 
-        strUrl = "http://180ly66419.iok.la:5000/api/insert/result?1=1&user_id=" + usr_id; // "http://10.26.7.164:5000/api/insert/result?1=1&user_id=1";
+        strUrl = "http://180ly66419.iok.la:5000/api/insert/result?1=1&user_id=" + usr_id; 
 		strJson = JSON.stringify(GetJsonData(usr_id, taskIdTxt, newInvoiceNum, newInvoiceID));
 
 		$.post(strUrl, strJson,
