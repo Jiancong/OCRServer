@@ -60,8 +60,6 @@ CREATE TABLE `records` (
   `record_id` int(11) NOT NULL AUTO_INCREMENT,
   `task_id` varchar(256) DEFAULT NULL,
   `user_id` int(11) NOT NULL,
-  `invoice_code` varchar(255) DEFAULT NULL,
-  `invoice_num` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`record_id`),
   UNIQUE KEY `task_id` (`task_id`,`user_id`),
   KEY `fk_user_id` (`user_id`),
@@ -76,7 +74,7 @@ CREATE TABLE `records` (
 
 LOCK TABLES `records` WRITE;
 /*!40000 ALTER TABLE `records` DISABLE KEYS */;
-INSERT INTO `records` VALUES (10,'b346a539dec05ed0bade6dd015e96933',1,'3','112'),(12,'7baadb3c1e5890ad1a3054b5165ecbd6',1,'356','11234'),(14,'ddc2e65c8525e42b320c6c80f0ef3bc5',1,'356','11234'),(16,'20f20f7a0271852acb543a63cbdbd2e6',1,NULL,NULL);
+INSERT INTO `records` VALUES (16,'20f20f7a0271852acb543a63cbdbd2e6',1),(12,'7baadb3c1e5890ad1a3054b5165ecbd6',1),(10,'b346a539dec05ed0bade6dd015e96933',1),(14,'ddc2e65c8525e42b320c6c80f0ef3bc5',1);
 /*!40000 ALTER TABLE `records` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -140,4 +138,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-20 17:59:19
+-- Dump completed on 2018-08-22 12:11:11

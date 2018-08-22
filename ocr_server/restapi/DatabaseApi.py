@@ -12,7 +12,7 @@ import os
 HTTP_202_ACCEPTED = 202
 HTTP_400_BAD_REQUEST = 400
 HTTP_405_NO_DATA = 405
-RESULT_FOLDER = "./tmp"
+RESULT_FOLDER = 'tmp'
 
 
 class InsertResultApi(Resource):
@@ -25,58 +25,34 @@ class InsertResultApi(Resource):
     def post(self):
         try:
             json_data = request.get_json(force=True)
-            task_id = json_data['task_id']
-            user_id = json_data['user_id']
-            docnum = json_data['invoice_num']
-            doctype = json_data['invoice_code']
+            task_id = json_data['task_id'].strip()
+            user_id = json_data['user_id'].strip()
+            docnum = json_data['InvoiceNum'].strip()
+            doctype = json_data['InvoiceCode'].strip()
 
             if user_id and task_id:
-                conn = MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
-                with conn:
-                    cursor = conn.cursor()
-                    query_string = "SELECT * FROM records WHERE task_id = '{taskid}' and user_id={userid}".format(taskid=task_id, userid=user_id) 
-                    cursor.execute(query_string)
-                    conn.commit()
 
-                    dataset = cursor.fetchall()
-                    print('Total Row(s) fetched:', cursor.rowcount)
+                sdir = os.path.join(RESULT_FOLDER, task_id)
+                response_file_path = os.path.join(sdir, 'response.json')
+                print("response_file_path=>", response_file_path)
 
-                    if not cursor.rowcount :
-                        raise ValueError("Can't find specific info:", task_id, user_id)
-
-                    for row in dataset:
-                        record_id = row[0]
-                        task_id = row[1]
-                        user_id = row[2]
-                        update_string = "UPDATE records SET doc_type = '{doctype}', doc_num='{docnum}' where task_id = '{taskid}'".format                                        (doctype=doctype, docnum=docnum, taskid=task_id)
-                        cursor.execute(update_string)
-                        conn.commit()
-                        print ("record_id=%s,task_id=%s,user_id=%d, doc_type=%s, doc_num=%s" % (record_id, task_id, user_id, doctype, docnum))
-                        sdir = os.path.join(RESULT_FOLDER, task_id)
-
-                        if os.path.exists(os.path.join(sdir, 'response.json')):
-                            with open(os.path.join(sdir, "response.json"), 'r+') as file:
-                                json_string = json.loads(file.read())
-
-                                #print('json_string.type=>', type(json_string))
-                                #print("old docnum===>", json_string['docnumber_ocr_result'])
-                                #print("old doctype===>", json_string['doctype_ocr_result'])
-                                json_string['invoice_num'] = docnum
-                                json_string['invoice_code'] = doctype
-                                #print("new docnum===>", json_string['docnumber_ocr_result'])
-                                #print("new doctype===>", json_string['doctype_ocr_result'])
-                                file.seek(0)
-                                file.write(json.dumps(json_string))
-                                file.truncate()
-                        else:
-                            raise ValueError("response.json file can't find", sdir)
+                if os.path.exists(response_file_path):
+                    with open(response_file_path, 'r+') as file:
+                        json_string = json.loads(file.read())
+                        json_string['InvoiceNum'] = docnum
+                        json_string['InvoiceCode'] = doctype
+                        file.seek(0)
+                        file.write(json.dumps(json_string))
+                        file.truncate()
+                else:
+                    raise ValueError("response.json file can't find", sdir)
     
-                    response_packet = {
-                            "msg": "Success.",
-                            "ret": HTTP_202_ACCEPTED,
-                            "data": {}
-                            }
-                    return make_response(jsonify(response_packet), HTTP_202_ACCEPTED) # <- the status_code displayed code on console
+                response_packet = {
+                        "msg": "Success.",
+                        "ret": HTTP_202_ACCEPTED,
+                        "data": {}
+                }
+                return make_response(jsonify(response_packet), HTTP_202_ACCEPTED) # <- the status_code displayed code on console
             else:
                 raise ValueError("invalid user_id or task_id", user_id, task_id)
 
