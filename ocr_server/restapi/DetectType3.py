@@ -206,7 +206,7 @@ class DetectType3Api(Resource):
                     conn = MySQLdb.connect(self.db_host, self.db_user, self.db_passwd, self.db_name)
                     with conn:
                         cursor = conn.cursor()
-                        update_string = "UPDATE records SET InvoiceCode='{doctype}', InvoiceNum='{docnum}' where task_id = '{taskid}'".format(doctype=doctyperes, docnum=docnumres, taskid=task_id)
+                        update_string = "UPDATE records SET invoice_code='{doctype}', invoice_num='{docnum}' where task_id = '{taskid}'".format(doctype=doctyperes, docnum=docnumres, taskid=task_id)
                         cursor.execute(update_string)
                         conn.commit()
                         print("update task_id=%s, doc_type=%s, doc_num=%s" % (task_id, doctyperes, docnumres))
@@ -215,10 +215,10 @@ class DetectType3Api(Resource):
                                 "task_id": task_id,
                                 "user_id": user_id,
                                 "file_type": file_type,
-                                "InvoiceNum": docnumres,
-                                "InvoiceCode": doctyperes,
-                                "InvoiceNum_encode": docnum_b64encode_string,
-                                "InvoiceCode_encode": doctype_b64encode_string,
+                                "invoice_num": docnumres,
+                                "invoice_code": doctyperes,
+                                "invoice_num_encode": docnum_b64encode_string,
+                                "invoice_code_encode": doctype_b64encode_string,
                             }
 
                     response_packet = {
