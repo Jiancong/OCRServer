@@ -152,10 +152,13 @@
 
     function GetJsonData(usr_id, task_id,docnumber_ocr_result,doctype_ocr_result ) {
         var json = {
-            "docnumber_ocr_result": docnumber_ocr_result,
-            "doctype_ocr_result":doctype_ocr_result,
             "task_id": task_id,
-            "user_id": usr_id
+            "words_result": {
+                "InvoiceCode": doctype_ocr_result,
+                "InvoiceNum": docnumber_ocr_result,
+            },
+            "user_id": usr_id.toString()
+
         };
         return json;
     }
