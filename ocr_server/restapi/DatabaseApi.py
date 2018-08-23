@@ -39,7 +39,8 @@ class InsertResultApi(Resource):
                 if os.path.exists(response_file_path):
                     with open(response_file_path, 'r+') as file:
                         json_string = json.loads(file.read())
-                        json_string['words_result'] = json_data['words_result'] 
+                        for k, v in words_result.items():
+                            json_string['words_result'][k] = v
                         file.seek(0)
                         file.write(json.dumps(json_string))
                         file.truncate()

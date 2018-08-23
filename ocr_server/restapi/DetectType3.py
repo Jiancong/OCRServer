@@ -20,6 +20,7 @@ import urllib.request
 import urllib.parse
 
 HTTP_400_BAD_REQUEST = 400
+HTTP_407_INTERNAL_ERROR = 407
 HTTP_201_CREATED = 201
 HTTP_200_SUCCESS = 200
 
@@ -27,6 +28,7 @@ TESS_CMD='tesseract'
 RESULT_FOLDER = "./tmp"
 ENCODING='ascii' 
 UPLOAD_FOLDER = './images'
+OCR_POLICY = 'try_out'
 
 class GetTaskImageApi(Resource):
     def __init__(self, DB_HOST, DB_USER, DB_PASSWD, DB_NAME):
@@ -95,7 +97,9 @@ class DetectType3Api(Resource):
         self.db_user = DB_USER
         self.db_passwd = DB_PASSWD
         self.db_name = DB_NAME
-        self.ocr_type = 'baidu'
+        self.ocr_type = 'baidu' #'baidu':baidu AIyun, 'google':tesseract
+        self.ocr_policy = 'best' # 'tryout' always try to use specific method almost 3 times.
+                                   # 'best' switch to another method when previous calling failed.
     '''
     'ori_image': {
         # ori_w, ori_h is the origin image without any change (uploaded by wechat)
@@ -198,9 +202,19 @@ class DetectType3Api(Resource):
                     else:
                         if self.ocr_type == 'baidu':
                             fba=FetchBaiduApi.FetchBaiduApi(self.db_host, self.db_user, self.db_passwd, self.db_name)
-                            print("user_id", )
                             responseBaiduData = fba.getInternal(user_id, task_id, file_type)
-                            print("response=>", responseBaiduData)
+                            if responseBaiduData == "":
+                                if self.ocr_policy == 'tryout':
+                                    responseBaiduData = fba.getInternal(user_id, task_id, file_type)
+                                    if responseBaiduData == "":
+                                        responseBaiduData = fba.getInternal(user_id, task_id, file_type)
+                                        if responseBaidudata == "":
+                                            print("Internal error happened!")
+                                            raise ValueError("Internal server error", HTTP_407_INTERNAL_ERROR )
+                                else:
+                                    self.ocr_type=="google"
+                            else:
+                                print("response=>", responseBaiduData)
 
                     with open(IMGDIR+"/roi-DocNumber.jpg", "rb") as image:
                         # base64 encode read data
@@ -255,12 +269,20 @@ class DetectType3Api(Resource):
         except ValueError as err:
 
             print(err.args)
-            response_packet = {
-                "msg": 'bad request.',
-                "ret": HTTP_400_BAD_REQUEST,
-                "data": {}
-            }
-            return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
+            if err.args[1] == HTTP_407_INTERNAL_ERROR: 
+                response_packet = {
+                    "msg": 'Server internal error.',
+                    "ret": HTTP_407_INTERNAL_ERROR,
+                    "data": {}
+                }
+                return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
+            else:
+                response_packet = {
+                    "msg": 'bad request.',
+                    "ret": HTTP_400_BAD_REQUEST,
+                    "data": {}
+                }
+                return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
 
     def post2(self, strJobId, strFilePath):
         self.mStrJobID = strJobId
