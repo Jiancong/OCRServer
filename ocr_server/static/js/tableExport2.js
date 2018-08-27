@@ -26,10 +26,10 @@
               if(k == 0){
                 if(j >= 1){
                   var check1 = document.getElementsByName("checkItem")[j-1];
-                  console.log(check1);
-                  console.log(check1.checked);
+                  //console.log(check1);
+                  //console.log(check1.checked);
                   if(!check1.checked){
-                    console.log("break");
+                    //console.log("break");
                     break;
                   }
                 }
@@ -39,6 +39,14 @@
               var dataStyle = tables[i].rows[j].cells[k].getAttribute("data-style");
               var dataValue = tables[i].rows[j].cells[k].getAttribute("data-value");
               dataValue = (dataValue)?dataValue:tables[i].rows[j].cells[k].innerHTML;
+/*
+              console.log("row:" + j + ",cell:" + k +",dataType:" + dataType
+                  //+ ", dataStyle:" + dataStyle
+                  + ", dataValue:" + dataValue.toString());
+*/
+              if(j == 1 && k == 1 && dataValue.indexOf("matching") > 0){
+                break;
+              }
               // if(dataValue.indexOf("input")>0){
               /*
               if(k == 0){
@@ -70,7 +78,7 @@
         ctx = {created: (new Date()).getTime(), worksheets: worksheetsXML};
         workbookXML = format(tmplWorkbookXML, ctx);
   
-        console.log(workbookXML);
+        //console.log(workbookXML);
   
         var link = document.createElement("A");
         link.href = uri + base64(workbookXML);
