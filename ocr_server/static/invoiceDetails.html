@@ -1,0 +1,142 @@
+<!DOCTYPE html >
+<html lang="en">
+<head >
+    <meta charset="utf-8">
+    <title>发票详细信息</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="/static/css/invoiceVerify.css"/>
+    <!-- Demo styles -->
+    <style>
+        body {
+            width: 100%;
+            background: #ffffff;
+            font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            color:#000;
+            margin: 0 auto;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+<div>
+<h1 style="margin-left: 45%;margin-top:20px; color: #000066; height:80px">发票详细信息
+<!--button id = "getVerify_list" style="margin-left: 5%;margin-top:30px;font-size: 20px" onclick="getTaskList()">
+获取发票列表 </button-->
+</h1>
+
+</div>
+<div class="picture">
+    <div class="picture_bottom">
+        <div class="picture_left">
+            <div class="picture_img">
+                <div class="picture_img2">
+                  <img id = "imgShow" class="showImg" />
+                </div>
+            </div>
+        </div>
+    <div class = "picture_right">
+                <div class="picture_info">
+                    <h2 style="margin-left: 30%;color: #000066; height:40px">发票信息</h2>
+                    <h4>发票代码：
+                        <img id = "invoiceID" src="/static/img/example_invoceID.png" width="120" height="30" style="height:25px;display: inline-block; vertical-align: middle;" />
+                        <input type="text" style="font-size:16px; width:140px; height:25px; display: inline-block; vertical-align: middle;" id="textInvoiceID"  >
+                    </h4>
+                </div>
+                <div class="picture_info">
+                    <h4>发票号码：
+                        <img id = "invoiceNum" src = "/static/img/example_invoceNum.png"   width="120" height="30" style="height:25px;display: inline-block; vertical-align: middle;" />
+                        <input type="text" style=" font-size:16px; width:140px; height:25px; display: inline-block; vertical-align: middle;" id="textInvoiceNum" >
+                    </h4>
+               </div>
+                <div class="picture_info">
+
+                <h4>购买方名称：
+                    <input type="text"  id="PurchaserName"  style="font-size:16px; width:253px ;height:25px; display: inline-block; vertical-align: middle;"  >
+                </h4>
+                </div>
+                <div class="picture_info">
+                    <h4>购买方纳税人识别号：
+                        <input type="text" id="PurchaserRegisterNum" style="font-size:16px; width:195px ;height:25px; display: inline-block; vertical-align: middle;"  >
+                    </h4>
+                </div>
+                <div class="picture_info">
+                <h4>销售方名称：
+                    <input type="text" id="SellerName" style="font-size:16px;  width:253px ;height:25px; display: inline-block; vertical-align: middle;"  >
+                </h4>
+                </div>
+                <div class="picture_info">
+                    <h4>销售方纳税人识别号：
+                        <input type="text" id="SellerRegisterNum" style="font-size:16px; width:195px ; height:25px; display: inline-block   ; vertical-align: middle;" >
+                    </h4>
+                </div>
+                 <div class="picture_info">
+                    <h4>金额：
+                        <input type="text" id="TotalAmount" style="font-size:16px; width:295px ;height:25px; display: inline-block; vertical-align: middle;" >
+                    </h4>
+                 </div>
+                <div class="picture_info">
+                    <input type="submit" id = "uploadInvoiceInfo" onclick="" style="margin-left:30%; background: #3b5998;width: 100px; height: 34px; color: #fff;letter-spacing: 1px; border-bottom: 1px solid #2d78f4; font-size: 16px" value="确认提交" class="s_btn">
+                </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script src="/static/js/invoiceVerify.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/js/jquery-1.4.2.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+ $(document).ready(function(){
+    var usr_id = 2;
+    onload();
+
+    function onload(){
+        var task_ID = "1a8a84fdc4ea06f5495785e753a23862";
+        getInvoiceDetails(usr_id, task_ID);
+    }
+
+    $("#uploadInvoiceInfo").click(function() {
+        var newInvoiceNum =  document.getElementById("textInvoiceNum").value;
+        var newInvoiceID =  document.getElementById("textInvoiceID").value;
+        //alert(newInvoiceNum + "   " + newInvoiceID);
+
+        strUrl = "http://180ly66419.iok.la:5000/api/insert/result?1=1&user_id=" + usr_id; // "http://10.26.7.164:5000/api/insert/result?1=1&user_id=1";
+		strJson = JSON.stringify(GetJsonData(usr_id, taskIdTxt, newInvoiceNum, newInvoiceID));
+
+		$.post(strUrl, strJson,
+			function(data,status){
+                var msg = (status == "success") ?"成功" : "失败";
+				alert("修改" + msg);
+            }, "json"
+        );
+
+    });
+
+    function GetJsonData(usr_id, task_id,docnumber_ocr_result,doctype_ocr_result ) {
+        var json = {
+            //"docnumber_ocr_result": docnumber_ocr_result,
+            // "doctype_ocr_result":doctype_ocr_result,
+            /*
+            "InvoiceNum": docnumber_ocr_result,
+            "InvoiceCode":doctype_ocr_result,
+            "task_id": task_id,
+            "user_id": usr_id*/
+            "task_id": usr_id,
+            "words_result": {
+                "InvoiceCode": doctype_ocr_result,
+                "InvoiceNum": docnumber_ocr_result,
+            },
+            "user_id": usr_id.toString()
+
+        };
+        return json;
+    }
+
+});
+</script>
+</body>
+</html>
