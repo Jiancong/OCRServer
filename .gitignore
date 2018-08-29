@@ -8,5 +8,6 @@
 /web_server/data/invoices.json
 /web_server/data/store.yaml
 
+.pyc
 .DS_Store
 */.idea/
