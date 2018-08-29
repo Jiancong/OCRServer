@@ -132,17 +132,18 @@ function getImgBase64(task_id) {
 
 }
 
-function showNumAndID(user_id, taskId) {
+function getInvoiceDetails(user_id, taskId) {
     //get invoice num and  ID pic
     var baseURl = "data:image/png;base64,";
     //alert(getInvoiceBase64(user_id, taskId, "invoiceNum"));
     document.images.invoiceNum.src = baseURl + getInvoiceBase64(user_id, taskId, "invoiceNum");
     document.images.invoiceID.src = baseURl + getInvoiceBase64(user_id, taskId, "invoiceID");
+
+    //get invoice image
     document.images.imgShow.src = baseURl + getImgBase64(taskId);
-    //get invoice info
+
+    //get invoice Details
     var inoviceObj = getInvocieInfo(user_id, taskId);
-    //invoiceTextID = getInvocieInfo(user_id, taskId, "textInvoiceID");
-    //invoiceTextNum = getInvocieInfo(user_id, taskId, "textInvoiceNum");
     var invoiceTextID = inoviceObj.data["words_result"]['InvoiceCode'];
     var invoiceTextNum = inoviceObj.data["words_result"]['InvoiceNum'];
     var inoviceTestPurchaserName = inoviceObj.data["words_result"]['PurchaserName'];
@@ -159,23 +160,31 @@ function showNumAndID(user_id, taskId) {
     $("#TotalAmount").val(inoviceTestTotalAmount);
 }
 
+
+
 function getAllInvoceInfo(user_id) {
 
     var taskList = getTaskList(user_id);
     var invoiceInfoList = [];
 
-    for (i = 0; i<tasklist.length;i++) {
+    for (i = 0; i<taskList.length;i++) {
         var invoiceInfo = {};
-        invoiceInfo["taskId"] = tasklist[i];
+        invoiceInfo["taskId"] = taskList[i];
         //get invoiceinfo
         var inoviceObj = getInvocieInfo(user_id, taskList[i]);
         invoiceInfo["invoiceTextID"]  = inoviceObj.data["words_result"]['InvoiceCode'];
         invoiceInfo["invoiceTextNum"]  = inoviceObj.data["words_result"]['InvoiceNum'];
+        invoiceInfo["PurchaserName"]= inoviceObj.data["words_result"]['PurchaserName'];
+        invoiceInfo["PurchaserRegisterNum"]= inoviceObj.data["words_result"]['PurchaserRegisterNum'];
+        invoiceInfo["SellerName"] = inoviceObj.data["words_result"]['SellerName'];
+        invoiceInfo["SellerRegisterNum"] = inoviceObj.data["words_result"]['SellerRegisterNum'];
+        invoiceInfo["TotalAmount"]= inoviceObj.data["words_result"]['TotalAmount'];
+        //add to  invoiceInfoList
         invoiceInfoList.push(invoiceInfo)
      }
      var jsonString = JSON.stringify(invoiceInfoList);
      var epc=eval("("+jsonString+")");
-     alert(epc[2].taskId);
+     return epc;
 }
 
 

@@ -31,7 +31,7 @@
 </h1>
 <h3 style="margin-left: 48%;  color: #343a40; height:50px">
     <a href="/static/invoiceList.html" >查看发票列表</a>
-    <!-- a href="/static/invoiceDetails.html" >查看发票信息</a -->
+    <!--a href="/static/invoiceDetails.html" >查看发票信息</a-->
 </h3>
 </div>
 <div class="picture">
@@ -64,23 +64,23 @@
                 </h4>
                 </div>
                 <div class="picture_info">
-                    <h4>购买方纳税人识别号：
-                        <input type="text" id="PurchaserRegisterNum" value="410305123456789" style="font-size:16px; width:195px ;height:25px; display: inline-block; vertical-align: middle;"  >
+                    <h4>购买方税号：
+                        <input type="text" id="PurchaserRegisterNum" value="410305123456789" style="font-size:16px; width:253px ;height:25px; display: inline-block; vertical-align: middle;"  >
                     </h4>
                 </div>
                 <div class="picture_info">
                 <h4>销售方名称：
-                    <input type="text" id="SellerName" value="测试消方企业" style="font-size:16px;  width:253px ;height:25px; display: inline-block; vertical-align: middle;"  >
+                    <input type="text" id="SellerName" value="测试销方企业" style="font-size:16px;  width:253px ;height:25px; display: inline-block; vertical-align: middle;"  >
                 </h4>
                 </div>
                 <div class="picture_info">
-                    <h4>销售方纳税人识别号：
-                        <input type="text" id="SellerRegisterNum" value="410305012345678" style="font-size:16px; width:195px ; height:25px; display: inline-block   ; vertical-align: middle;" >
+                    <h4>销售方税号：
+                        <input type="text" id="SellerRegisterNum" value="410305012345678" style="font-size:16px; width:253px ; height:25px; display: inline-block   ; vertical-align: middle;" >
                     </h4>
                 </div>
                  <div class="picture_info">
                     <h4>金额：
-                        <input type="text" id="TotalAmount"  value="7108.83" style="font-size:16px; width:295px ;height:25px; display: inline-block; vertical-align: middle;" >
+                        <input type="text" id="TotalAmount"  value="5999.00" style="font-size:16px; width:295px ;height:25px; display: inline-block; vertical-align: middle;" >
                     </h4>
                  </div>
                 <div class="picture_info">
@@ -175,11 +175,16 @@
     }
 
     $("#uploadInvoiceInfo").click(function() {
-        var newInvoiceNum =  document.getElementById("textInvoiceNum").value;
-        var newInvoiceID =  document.getElementById("textInvoiceID").value;
+        var InvoiceCode =  document.getElementById("textInvoiceID").value;
+        var InvoiceNum =  document.getElementById("textInvoiceNum").value;
+        var PurchaserName =  document.getElementById("PurchaserName").value;
+        var PurchaserRegisterNum =  document.getElementById("PurchaserRegisterNum").value;
+        var SellerName =  document.getElementById("SellerName").value;
+        var SellerRegisterNum =  document.getElementById("SellerRegisterNum").value;
+        var TotalAmount =  document.getElementById("TotalAmount").value;
 
         strUrl = "http://180ly66419.iok.la:5000/api/insert/result?1=1&user_id=" + usr_id;
-		strJson = JSON.stringify(GetJsonData(usr_id, taskIdTxt, newInvoiceNum, newInvoiceID));
+		strJson = JSON.stringify(GetJsonData(usr_id, taskIdTxt,InvoiceCode, InvoiceNum, PurchaserName,PurchaserRegisterNum,SellerName,SellerRegisterNum,TotalAmount));
 
 		$.post(strUrl, strJson,
 			function(data,status){
@@ -190,14 +195,19 @@
 
     });
 
-    function GetJsonData(usr_id, task_id,docnumber_ocr_result,doctype_ocr_result ) {
+    function GetJsonData(usr_id, task_id,InvoiceCode,InvoiceNum,PurchaserName,PurchaserRegisterNum,SellerName,SellerRegisterNum,TotalAmount ) {
         var json = {
-            "task_id": usr_id,
+            "user_id": usr_id.toString(),
+            "task_id": task_id.toString(),
             "words_result": {
-                "InvoiceCode": doctype_ocr_result,
-                "InvoiceNum": docnumber_ocr_result,
-            },
-            "user_id": usr_id.toString()
+                "InvoiceCode": InvoiceCode,
+                "InvoiceNum": InvoiceNum,
+                "PurchaserName": PurchaserName,
+                "PurchaserRegisterNum":PurchaserRegisterNum,
+                "SellerName":SellerName,
+                "SellerRegisterNum":SellerRegisterNum,
+                "TotalAmount":TotalAmount
+            }
 
         };
         return json;
