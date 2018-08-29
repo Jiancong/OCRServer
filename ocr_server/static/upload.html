@@ -18,7 +18,7 @@
             <p class="help-block">请选择拍好的发票照片。</p>
         </div>
         <button class="btn btn-default" id="btnUpload">提交</button>
-        <!-- button class="btn btn-default" id="btnShowDetail">查看</button -->
+        <button class="btn btn-default" id="btnShowDetail">查看结果</button>
 </div>
 <script>
     var g_taskID = "";
@@ -26,50 +26,50 @@
         console.log("uploadImageFile");
         var urlUpload = "http://180ly66419.iok.la:5000/api/upload?1=1";
         var formData = new FormData();
-        //formData.append("user_id", "2");
+        formData.append("user_id", "2");
         formData.append("user_file", $('input[name=user_file]')[0].files[0]);
         $.ajax({
             url: urlUpload,
             type: "POST",
             data: formData,
-            /**
-            *必须false才会自动加上正确的Content-Type
-            */
             contentType: false,
-            /**
-            * 必须false才会避开jQuery对 formdata 的默认处理
-            * XMLHttpRequest会对 formdata 进行正确的处理
-            */
             processData: false,
             success: function (data) {
-                if (data.status == "true") {
-                    console.log(data);
-                    var oResult = JSON.parse(data.msg);
-                    g_taskID = oResult.data.task_id;
-                    // $("#btnShowDetail").show();
-                    alert("上传成功！" + data.msg, "");
-                }
-                if (data.status == "error") {
-                    alert(data.msg)
-                }
-                //$("#imgWait").hide();
+                console.log(data);
+                onSuccess(data);
             },
             error: function (jqXHR) {
-                alert("失败！");
-                alert(JSON.stringify(jqXHR));
+                alert("上传失败！");
                 console.log(JSON.stringify(jqXHR));
-                //$("#imgWait").hide();
             }
         });
     }
 
     $(document).ready(function(){
         $("#btnUpload").click(uploadImageFile);
+        $("#btnShowDetail").click(onbtnClickShowDetails);
+        onload();
     });
 
-    function onbtnClickShowDetails(){
-        var strUrlInvDetails = "invoiceDetails.html?1=1&" + oResult.data.task_id;
+    function onload(){
+        $('#btnShowDetail').hide();
+    }
 
+    function onSuccess(data){
+        //var data = '{"data":{"task_id":"6260fdeb31fadd255f1fd979a2ec0383","user_id":2},"msg":"Upload file successfully","ret":201}';
+        var oResult = JSON.parse(data);
+        if(oResult.ret < 300){
+            g_taskID = oResult.data.task_id;
+            $('#btnShowDetail').show();
+        }else {
+            alert("上传失败！");
+        }
+    }
+
+    function onbtnClickShowDetails(){
+        var strUrlInvDetails = "http://180ly66419.iok.la:5000/static/invoiceDetails.html?1=1&task_id=" + g_taskID;
+        // alert(strUrlInvDetails);
+        window.location.href=strUrlInvDetails;
     }
 
 </script>
