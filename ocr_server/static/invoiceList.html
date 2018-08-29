@@ -82,11 +82,11 @@
                 var newTd6 = newTr.insertCell();
                 var newTd7 = newTr.insertCell();
 
-                newTd0.innerHTML = '<td>' + jsonlist[i].taskId(0,5) + '</td>';
+                newTd0.innerHTML = '<td>' + jsonlist[i].taskId.slice(0,5) + '</td>';
                 newTd1.innerHTML = '<td>' + jsonlist[i].invoiceTextID + '</td>';
-                newTd2.innerHTML = '<td>' + jsonlist[i].PurchaserName + '</td>';
-                newTd3.innerHTML = '<td>' + jsonlist[i].PurchaserRegisterNum + '</td>';
-                newTd4.innerHTML = '<td>' + jsonlist[i].invoiceTextNum + '</td>';
+                newTd2.innerHTML = '<td>' + jsonlist[i].invoiceTextNum + '</td>';
+                newTd3.innerHTML = '<td>' + jsonlist[i].PurchaserName + '</td>';
+                newTd4.innerHTML = '<td>' + jsonlist[i].PurchaserRegisterNum + '</td>';
                 newTd5.innerHTML = '<td>' + jsonlist[i].SellerName + '</td>';
                 newTd6.innerHTML = '<td>' + jsonlist[i].SellerRegisterNum + '</td>';
                 newTd7.innerHTML = '<td>' + jsonlist[i].TotalAmount + '</td>';
