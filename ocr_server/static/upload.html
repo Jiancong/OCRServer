@@ -18,8 +18,10 @@
             <p class="help-block">请选择拍好的发票照片。</p>
         </div>
         <button class="btn btn-default" id="btnUpload">提交</button>
+        <!-- button class="btn btn-default" id="btnShowDetail">查看</button -->
 </div>
 <script>
+    var g_taskID = "";
     function uploadImageFile(){
         console.log("uploadImageFile");
         var urlUpload = "http://180ly66419.iok.la:5000/api/upload?1=1";
@@ -41,11 +43,10 @@
             processData: false,
             success: function (data) {
                 if (data.status == "true") {
-                    //ErrorAlert("上传成功！", "../user-center/user-center.aspx");
                     console.log(data);
-                    //var aa = data.msg;
-                    //aa = "/" + aa.substr(aa.indexOf("upload"));
-                    //$("#userImg").attr("src", aa);
+                    var oResult = JSON.parse(data.msg);
+                    g_taskID = oResult.data.task_id;
+                    // $("#btnShowDetail").show();
                     alert("上传成功！" + data.msg, "");
                 }
                 if (data.status == "error") {
@@ -65,7 +66,12 @@
     $(document).ready(function(){
         $("#btnUpload").click(uploadImageFile);
     });
-    
+
+    function onbtnClickShowDetails(){
+        var strUrlInvDetails = "invoiceDetails.html?1=1&" + oResult.data.task_id;
+
+    }
+
 </script>
 </body>
 </html>

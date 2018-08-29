@@ -90,12 +90,22 @@
 <script src="/static/js/jquery-1.4.2.js" type="text/javascript" charset="utf-8"></script>
 
 <script>
+
+    function getQueryString(name) {
+        var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) {
+            return unescape(r[2]);
+        }
+        return null;
+    }
+
  $(document).ready(function(){
     var usr_id = 2;
+    var task_ID = getQueryString("task_id"); // "1a8a84fdc4ea06f5495785e753a23862";
     onload();
 
     function onload(){
-        var task_ID = "1a8a84fdc4ea06f5495785e753a23862";
         showNumAndID(usr_id, task_ID);
     }
 
@@ -105,7 +115,7 @@
         //alert(newInvoiceNum + "   " + newInvoiceID);
 
         strUrl = "http://180ly66419.iok.la:5000/api/insert/result?1=1&user_id=" + usr_id; // "http://10.26.7.164:5000/api/insert/result?1=1&user_id=1";
-		strJson = JSON.stringify(GetJsonData(usr_id, taskIdTxt, newInvoiceNum, newInvoiceID));
+		strJson = JSON.stringify(GetJsonData(usr_id, task_ID, newInvoiceNum, newInvoiceID));
 
 		$.post(strUrl, strJson,
 			function(data,status){
