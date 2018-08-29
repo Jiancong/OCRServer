@@ -109,6 +109,17 @@ class InsertRecordApi(Resource):
                     }
                     return make_response(jsonify(response_packet), HTTP_202_ACCEPTED) # <- the status_code displayed code on console
 
+        except MySQLdb.IntegrityError as err:
+            print( "MySQL error: {}".format(err))
+            cursor.close()
+            gc.collect()
+            response_packet = {
+                "msg": 'bad request.',
+                "ret": HTTP_400_BAD_REQUEST,
+                "data": {}
+            }
+            return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
+
         except ValueError as err:
             print(err.args)
             response_packet = {

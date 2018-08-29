@@ -43,13 +43,22 @@ class Uploader(Resource):
         return file_ext, status
 
     def send_request(self, url, values):
+        try:
 
-        data = urllib.parse.urlencode(values)
-        data = data.encode() # data should be bytes
-        req = urllib.request.Request(url, data=data)
+            data = urllib.parse.urlencode(values)
+            data = data.encode() # data should be bytes
+            req = urllib.request.Request(url, data=data)
 
-        with urllib.request.urlopen(req) as response:
-               the_page = response.read()
+            with urllib.request.urlopen(req) as response:
+                   the_page = response.read()
+
+        except urllib.error.HTTPError as err:
+            response_packet = {
+                "msg": 'bad request.',
+                "ret": HTTP_400_BAD_REQUEST,
+                "data": {}
+            }
+            return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
 
     def upload(self):
         return render_template('upload.html')
