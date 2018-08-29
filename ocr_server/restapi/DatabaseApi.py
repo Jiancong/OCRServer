@@ -95,11 +95,12 @@ class InsertRecordApi(Resource):
                     cursor.execute('INSERT INTO records (user_id, task_id ) values(%s, %s)',
                                     [user_id, task_id])
                     conn.commit()
-                    print(cursor.rowcount, " record inserted.")
+                    print(cursor.rowcount, "record inserted.")
                     if cursor.rowcount == 0 :
+                        cursor.close()
                         raise ValueError("No record found.", user_id, task_id)
-                    cursor.close()
                     
+                    cursor.close()
                     gc.collect()
                     response_packet = {
                         "msg": 'Success.',
@@ -118,8 +119,6 @@ class InsertRecordApi(Resource):
             return make_response(jsonify(response_packet), HTTP_400_BAD_REQUEST) # <- the status_code displayed code on console
 
         finally:
-            cursor.close()
-            
             gc.collect()
 
 
