@@ -25,16 +25,13 @@
 
 <body>
 <div>
-<h1 style="margin-left: 45%; color: #000066; height:60px">发票验证平台
+<h1 style="margin-left: 45%;margin-top:20px; color: #000066; height:80px">发票验证平台
 <!--button id = "getVerify_list" style="margin-left: 5%;margin-top:30px;font-size: 20px" onclick="getTaskList()">
 获取发票列表 </button-->
 </h1>
-
-
-<h3 style="margin-left: 60%; color: #343a40; height:30px">
+<h3 style="margin-left: 48%;  color: #343a40; height:50px">
     <a href="/static/invoiceList.html" >查看发票列表</a>
 </h3>
-
 </div>
 <div class="picture">
     <div class="picture_bottom">
@@ -45,26 +42,50 @@
                 </div>
             </div>
         </div>
+    <div class = "picture_right">
+                <div class="picture_info">
+                    <h2 style="margin-left: 30%;color: #000066; height:40px">发票信息</h2>
+                    <h4>发票代码：
+                        <img id = "invoiceID" src="/static/img/example_invoceID.png" width="120" height="30" style="height:25px;display: inline-block; vertical-align: middle;" />
+                        <input type="text" style="font-size:16px; width:140px; height:25px; display: inline-block; vertical-align: middle;" id="textInvoiceID" value="1100094140" >
+                    </h4>
+                </div>
+                <div class="picture_info">
+                    <h4>发票号码：
+                        <img id = "invoiceNum" src = "/static/img/example_invoceNum.png"   width="120" height="30" style="height:25px;display: inline-block; vertical-align: middle;" />
+                        <input type="text" style=" font-size:16px; width:140px; height:25px; display: inline-block; vertical-align: middle;" id="textInvoiceNum" value="87654321">
+                    </h4>
+               </div>
+                <div class="picture_info">
 
-    </div>
-
-    <div class="picture_center" >
-        <div class="picture_info" style=" margin-left: 25%; margin-top:20px">
-            <h4>发票代码：
-                <img id = "invoiceID" src="/static/img/example_invoceID.png" width="160" height="30" style="height:30px;display: inline-block; vertical-align: middle;" />
-                <input type="text" style="font-size:16px; width:150px; height:25px; display: inline-block; vertical-align: middle;" id="textInvoiceID" value="1100094140" >
-            </h4>
+                <h4>购买方名称：
+                    <input type="text"  id="PurchaserName"  style="font-size:16px; width:253px ;height:25px; display: inline-block; vertical-align: middle;"  >
+                </h4>
+                </div>
+                <div class="picture_info">
+                    <h4>购买方纳税人识别号：
+                        <input type="text" id="PurchaserRegisterNum" style="font-size:16px; width:195px ;height:25px; display: inline-block; vertical-align: middle;"  >
+                    </h4>
+                </div>
+                <div class="picture_info">
+                <h4>销售方名称：
+                    <input type="text" id="SellerName" style="font-size:16px;  width:253px ;height:25px; display: inline-block; vertical-align: middle;"  >
+                </h4>
+                </div>
+                <div class="picture_info">
+                    <h4>销售方纳税人识别号：
+                        <input type="text" id="SellerRegisterNum" style="font-size:16px; width:195px ; height:25px; display: inline-block   ; vertical-align: middle;" >
+                    </h4>
+                </div>
+                 <div class="picture_info">
+                    <h4>金额：
+                        <input type="text" id="TotalAmount" style="font-size:16px; width:295px ;height:25px; display: inline-block; vertical-align: middle;" >
+                    </h4>
+                 </div>
+                <div class="picture_info">
+                    <input type="submit" id = "uploadInvoiceInfo" onclick="" style="margin-left:30%; background: #3b5998;width: 100px; height: 34px; color: #fff;letter-spacing: 1px; border-bottom: 1px solid #2d78f4; font-size: 16px" value="确认提交" class="s_btn">
+                </div>
         </div>
-
-        <div class="picture_info" style=" margin-left: 25%">
-            <h4>发票号码：
-                <img id = "invoiceNum" src = "/static/img/example_invoceNum.png"   width="160" height="30" style="height:30px;display: inline-block; vertical-align: middle;" />
-                <input type="text" style=" font-size:16px; width:150px; height:25px; display: inline-block; vertical-align: middle;" id="textInvoiceNum" value="87654321">
-                <input type="submit" id = "uploadInvoiceInfo" onclick="" style="background: #3b5998;width: 100px; height: 34px; color: #fff;letter-spacing: 1px; border-bottom: 1px solid #2d78f4; font-size: 16px" value="确认提交" class="s_btn">
-
-            </h4>
-        </div>
-
     </div>
     <!-- Swiper -->
     <div class="swiper-container">
@@ -92,7 +113,7 @@
     function onload(){
 
         var swiper = new Swiper('.swiper-container', {
-                slidesPerView:5,
+                slidesPerView:8,
                 centeredSlides: true,
                 spaceBetween: tasklistNum,
                 pagination: {
@@ -138,7 +159,7 @@
         var newInvoiceID =  document.getElementById("textInvoiceID").value;
         //alert(newInvoiceNum + "   " + newInvoiceID);
 
-        strUrl = "http://180ly66419.iok.la:5000/api/insert/result?1=1&user_id=" + usr_id; 
+        strUrl = "http://180ly66419.iok.la:5000/api/insert/result?1=1&user_id=" + usr_id; // "http://10.26.7.164:5000/api/insert/result?1=1&user_id=1";
 		strJson = JSON.stringify(GetJsonData(usr_id, taskIdTxt, newInvoiceNum, newInvoiceID));
 
 		$.post(strUrl, strJson,
@@ -152,13 +173,10 @@
 
     function GetJsonData(usr_id, task_id,docnumber_ocr_result,doctype_ocr_result ) {
         var json = {
+            "docnumber_ocr_result": docnumber_ocr_result,
+            "doctype_ocr_result":doctype_ocr_result,
             "task_id": task_id,
-            "words_result": {
-                "InvoiceCode": doctype_ocr_result,
-                "InvoiceNum": docnumber_ocr_result,
-            },
-            "user_id": usr_id.toString()
-
+            "user_id": usr_id
         };
         return json;
     }

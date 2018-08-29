@@ -7,12 +7,12 @@ a {
 }
 
 .invoice_title {
-    width: 976px;
+    width: 1100px;
     height: 150px
 }
 
 .picture {
-    width: 850px;
+    width: 1100px;
     height: 450px;
     font-family: "宋体";
     left: 0;
@@ -29,14 +29,14 @@ a {
 }
 
 .picture .picture_bottom .picture_left {
-    width: 100%;
+    width: 650px;
     height: 100%;
     float: left
 }
 
 .picture .picture_bottom .picture_left .picture_img {
     position: relative;
-    left: 50px;
+    left: 30px;
 
     width: 90%;
     height: 100%;
@@ -45,15 +45,15 @@ a {
 }
 
 .picture_bottom .picture_left .picture_img .picture_img2 {
-    width: 100%;
+    width: 650px;
     height: 100%;
     display: table-cell;
     vertical-align: middle
 }
 
 .picture_bottom .picture_left .picture_img .picture_img2 img {
-    max-width: 658px;
-    max-height: 400px
+    max-width: 650px;
+    max-height: 500px
 }
 
 .picture_bottom .picture_left .prev {
@@ -75,6 +75,19 @@ a {
     float: right
 }
 
+.picture .picture_bottom .picture_right {
+    width: 430px;
+    height: 100%;
+    margin-left: 20px;
+    float: left;
+}
+
+.picture .picture_bottom .picture_right .picture_info {
+
+    margin-left: 40px;
+    margin-top: 10px;
+}
+
 
 .picture .picture_bottom .picture_center {
     top:20px;
@@ -82,13 +95,14 @@ a {
     height: 50px;
 }
 
-.picture .picture_bottom .picture_center .picture_info {
+.picture .picture_bottom .picture_center .picture_info_bk {
     width: 771px;
     top:20px;
     display: table-cell;
     text-align: center
 }
-.picture .picture_bottom .picture_center .picture_info  .s_btn {
+
+.picture .picture_bottom .picture_center .picture_info_bk .s_btn {
     width: 100px;
     height: 34px;
     color: #fff;
