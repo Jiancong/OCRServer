@@ -57,7 +57,7 @@
 
     function onSuccess(data){
         //var data = '{"data":{"task_id":"6260fdeb31fadd255f1fd979a2ec0383","user_id":2},"msg":"Upload file successfully","ret":201}';
-        var oResult = JSON.parse(data);
+        var oResult = data; // JSON.parse(data);
         if(oResult.ret < 300){
             g_taskID = oResult.data.task_id;
             $('#btnShowDetail').show();
